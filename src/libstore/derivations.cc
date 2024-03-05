@@ -9,6 +9,7 @@
 #include "common-protocol-impl.hh"
 #include <boost/container/small_vector.hpp>
 #include <nlohmann/json.hpp>
+#include <iostream>
 
 namespace nix {
 
@@ -1363,12 +1364,16 @@ Derivation Derivation::fromJSON(
 
     Derivation res;
 
+    /* This seems to be the culprit here */
     auto json = getObject(_json);
 
     res.name = getString(valueAt(json, "name"));
 
     try {
-        auto & outputsObj = getObject(valueAt(json, "outputs"));
+        /* Here `valueAt` returns `null`, which causes a segfault when directly nested inside `getObject` */
+        auto & value = valueAt(json, "outputs");
+        std::cout << "`valueAt` returned `" << value << "`\n";
+        auto & outputsObj = getObject(value);
         for (auto & [outputName, output] : outputsObj) {
             res.outputs.insert_or_assign(
                 outputName,

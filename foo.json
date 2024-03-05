@@ -1,0 +1,15 @@
+{ "args": [ "-e",
+    "/private/var/folders/h4/21bcscsd1l514wqy2m6kj0qh0000gn/T/nix-test/derivation-json/store/d53rgliskkwhdqw2vcv8bgfyys9i8pi7-simple.builder.sh"
+], "builder":
+    "/nix/store/np50phgdc2ls0g9k5f7zqznwszd8dr4h-bash-5.2-p15/bin/bash", "env":
+    { "PATH": "", "builder":
+        "/nix/store/np50phgdc2ls0g9k5f7zqznwszd8dr4h-bash-5.2-p15/bin/bash",
+        "goodPath":
+        "/nix/store/3f1ii2y5fs1w7p0id9mkis0ffvhh1n8w-coreutils-9.1/bin",
+        "name": "simple", "out":
+        "/private/var/folders/h4/21bcscsd1l514wqy2m6kj0qh0000gn/T/nix-test/derivation-json/store/lk6lja6jfqi80ss6cvzwv8chihaqd5i3-simple",
+        "system": "aarch64-darwin" }, "inputDrvs": {}, "inputSrcs": [
+        "/private/var/folders/h4/21bcscsd1l514wqy2m6kj0qh0000gn/T/nix-test/derivation-json/store/d53rgliskkwhdqw2vcv8bgfyys9i8pi7-simple.builder.sh"
+    ], "name": "simple", "outputs": { "out": { "path":
+        "/private/var/folders/h4/21bcscsd1l514wqy2m6kj0qh0000gn/T/nix-test/derivation-json/store/lk6lja6jfqi80ss6cvzwv8chihaqd5i3-simple"
+    } }, "system": "aarch64-darwin" }
