@@ -273,6 +273,51 @@ struct DerivationType {
     bool hasKnownOutputPaths() const;
 };
 
+struct DerivationOptions
+{
+    /**
+     * env: __sandboxProfile
+     *
+     * Just for Darwin`
+     */
+    std::string additionalSandboxProfile = "";
+
+    /**
+     * Derivation would like to opt out of the sandbox.
+     *
+     * Builder is free to not respect this wish (because it is
+     * insecure) and fail the build instead.
+     */
+    bool noChroot = false;
+
+#if 0
+src/libstore/unix/build/local-derivation-goal.cc:        auto impurePaths = parsedDrv->getStringsAttr("__impureHostDeps").value_or(Strings());
+src/libstore/unix/build/local-derivation-goal.cc:        for (auto & i : parsedDrv->getStringsAttr("impureEnvVars").value_or(Strings())) {
+src/libstore/unix/build/local-derivation-goal.cc:            bool allowLocalNetworking = parsedDrv->getBoolAttr("__darwinAllowLocalNetworking");
+src/libstore/unix/build/local-derivation-goal.cc:            checks.allowedReferences = parsedDrv->getStringsAttr("allowedReferences");
+src/libstore/unix/build/local-derivation-goal.cc:            checks.allowedRequisites = parsedDrv->getStringsAttr("allowedRequisites");
+src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedReferences = parsedDrv->getStringsAttr("disallowedReferences");
+src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedRequisites = parsedDrv->getStringsAttr("disallowedRequisites")
+#endif
+
+    bool operator ==(const DerivationOptions &) const;
+    auto operator <=>(const DerivationOptions &) const;
+
+    /**
+     * Parse this information from its legacy encoding as part of the
+     * environment. This should not be used with nice greenfield formats
+     * (e.g. JSON) but is necessary for supporing old formats (e.g.
+     * ATerm).
+     *
+     * @todo Instead of taking the entire `BasicDerivation`, just take
+     * the envionrment. Right now this won't work because
+     * `ParsedDerivation` has to be created from the whole derivation,
+     * but this should become possible again once we shrink down
+     * `ParsedDerivation` so it just as the `get*Attr` methods.
+     */
+    static DerivationOptions fromEnv(const BasicDerication /*StringPairs*/ & env);
+};
+
 struct BasicDerivation
 {
     /**
@@ -288,6 +333,8 @@ struct BasicDerivation
     Strings args;
     StringPairs env;
     std::string name;
+
+    DerivationOptions options;
 
     BasicDerivation() = default;
     virtual ~BasicDerivation() { };
@@ -313,14 +360,8 @@ struct BasicDerivation
 
     static std::string_view nameFromPath(const StorePath & storePath);
 
-    GENERATE_CMP(BasicDerivation,
-        me->outputs,
-        me->inputSrcs,
-        me->platform,
-        me->builder,
-        me->args,
-        me->env,
-        me->name);
+    bool operator ==(const BasicDerivation &) const;
+    auto operator <=>(const BasicDerivation &) const;
 };
 
 class Store;
@@ -378,9 +419,8 @@ struct Derivation : BasicDerivation
         const nlohmann::json & json,
         const ExperimentalFeatureSettings & xpSettings = experimentalFeatureSettings);
 
-    GENERATE_CMP(Derivation,
-        static_cast<const BasicDerivation &>(*me),
-        me->inputDrvs);
+    bool operator ==(const Derivation &) const;
+    auto operator <=>(const Derivation &) const;
 };
 
 

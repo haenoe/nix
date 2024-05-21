@@ -193,9 +193,8 @@ void LocalDerivationGoal::tryLocalBuild()
 
     /* Are we doing a chroot build? */
     {
-        auto noChroot = parsedDrv->getBoolAttr("__noChroot");
         if (settings.sandboxMode == smEnabled) {
-            if (noChroot)
+            if (drv.options.noChroot)
                 throw Error("derivation '%s' has '__noChroot' set, "
                     "but that's not allowed when 'sandbox' is 'true'", worker.store.printStorePath(drvPath));
 #if __APPLE__
@@ -208,7 +207,7 @@ void LocalDerivationGoal::tryLocalBuild()
         else if (settings.sandboxMode == smDisabled)
             useChroot = false;
         else if (settings.sandboxMode == smRelaxed)
-            useChroot = derivationType->isSandboxed() && !noChroot;
+            useChroot = derivationType->isSandboxed() && !drv.options.noChroot;
     }
 
     auto & localStore = getLocalStore();
