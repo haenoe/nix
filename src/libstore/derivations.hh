@@ -284,11 +284,13 @@ struct DerivationOptions
     /**
      * env: __sandboxProfile
      *
-     * Just for Darwin`
+     * Just for Darwin
      */
     std::string additionalSandboxProfile = "";
 
     /**
+     * env: __noChroot
+     *
      * Derivation would like to opt out of the sandbox.
      *
      * Builder is free to not respect this wish (because it is
@@ -297,15 +299,23 @@ struct DerivationOptions
     bool noChroot = false;
 
     /**
-     * List of paths the derivation has access to.
+     * env: __impureHostDeps
      */
-
     Strings impureHostDeps = {};
 
+    /**
+     * env: __impureEnvVars
+     */
     Strings impureEnvVars = {};
 
+    /**
+     * env: __darwinAllowLocalNetworking
+     *
+     * Just for Darwin
+     */
+    bool allowLocalNetworking = false;
+
 #if 0
-src/libstore/unix/build/local-derivation-goal.cc:            bool allowLocalNetworking = parsedDrv->getBoolAttr("__darwinAllowLocalNetworking");
 src/libstore/unix/build/local-derivation-goal.cc:            checks.allowedReferences = parsedDrv->getStringsAttr("allowedReferences");
 src/libstore/unix/build/local-derivation-goal.cc:            checks.allowedRequisites = parsedDrv->getStringsAttr("allowedRequisites");
 src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedReferences = parsedDrv->getStringsAttr("disallowedReferences");

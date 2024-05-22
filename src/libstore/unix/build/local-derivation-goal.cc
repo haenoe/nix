@@ -2112,8 +2112,6 @@ void LocalDerivationGoal::runChild()
 
             writeFile(sandboxFile, sandboxProfile);
 
-            bool allowLocalNetworking = parsedDrv->getBoolAttr("__darwinAllowLocalNetworking");
-
             /* The tmpDir in scope points at the temporary build directory for our derivation. Some packages try different mechanisms
                to find temporary directories, so we want to open up a broader place for them to put their files, if needed. */
             Path globalTmpDir = canonPath(defaultTempDir(), true);
@@ -2129,7 +2127,7 @@ void LocalDerivationGoal::runChild()
                 args.push_back(sandboxFile);
                 args.push_back("-D");
                 args.push_back("_GLOBAL_TMP_DIR=" + globalTmpDir);
-                if (allowLocalNetworking) {
+                if (drv->options.allowLocalNetworking) {
                     args.push_back("-D");
                     args.push_back(std::string("_ALLOW_LOCAL_NETWORKING=1"));
                 }
