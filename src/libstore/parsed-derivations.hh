@@ -10,12 +10,12 @@ namespace nix {
 
 class ParsedDerivation
 {
-    BasicDerivation & drv;
+    const BasicDerivation & drv;
     std::unique_ptr<nlohmann::json> structuredAttrs;
 
 public:
 
-    ParsedDerivation(BasicDerivation & drv);
+    ParsedDerivation(const BasicDerivation & drv);
 
     ~ParsedDerivation();
 

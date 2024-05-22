@@ -190,7 +190,7 @@ void DerivationGoal::haveDerivation()
 {
     trace("have derivation");
 
-    parsedDrv = std::make_unique<ParsedDerivation>(drvPath, *drv);
+    parsedDrv = std::make_unique<ParsedDerivation>(*drv);
 
     if (!drv->type().hasKnownOutputPaths())
         experimentalFeatureSettings.require(Xp::CaDerivations);

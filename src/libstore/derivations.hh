@@ -273,6 +273,12 @@ struct DerivationType {
     bool hasKnownOutputPaths() const;
 };
 
+/**
+ * TODO: Is this the correct way? I need to have `BasicDerivation` available
+ * for `DerivationOptions::fromEnv`
+ */
+struct BasicDerivation;
+
 struct DerivationOptions
 {
     /**
@@ -300,8 +306,8 @@ src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedRe
 src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedRequisites = parsedDrv->getStringsAttr("disallowedRequisites")
 #endif
 
-    bool operator ==(const DerivationOptions &) const;
-    auto operator <=>(const DerivationOptions &) const;
+    bool operator ==(const DerivationOptions &) const = default;
+    auto operator <=>(const DerivationOptions &) const = default;
 
     /**
      * Parse this information from its legacy encoding as part of the
@@ -315,7 +321,7 @@ src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedRe
      * but this should become possible again once we shrink down
      * `ParsedDerivation` so it just as the `get*Attr` methods.
      */
-    static DerivationOptions fromEnv(const BasicDerication /*StringPairs*/ & env);
+    static DerivationOptions fromEnv(const BasicDerivation /*StringPairs*/ & env);
 };
 
 struct BasicDerivation
@@ -360,8 +366,8 @@ struct BasicDerivation
 
     static std::string_view nameFromPath(const StorePath & storePath);
 
-    bool operator ==(const BasicDerivation &) const;
-    auto operator <=>(const BasicDerivation &) const;
+    bool operator ==(const BasicDerivation &) const = default;
+    auto operator <=>(const BasicDerivation &) const = default;
 };
 
 class Store;
@@ -419,8 +425,17 @@ struct Derivation : BasicDerivation
         const nlohmann::json & json,
         const ExperimentalFeatureSettings & xpSettings = experimentalFeatureSettings);
 
-    bool operator ==(const Derivation &) const;
-    auto operator <=>(const Derivation &) const;
+    bool operator ==(const Derivation &) const = default;
+
+    /* TODO: Fix
+     * src/libstore/derivations.hh:429:10: warning: explicitly defaulted three-way comparison operator is implicitly deleted [-Wdefaulted-function-deleted]
+     *  auto operator <=>(const Derivation &) const = default;
+     *       ^
+     * src/libstore/derivations.hh:380:42: note: defaulted 'operator<=>' is implicitly deleted because there is no viable three-way comparison function for member 'inputDrvs'
+     *  DerivedPathMap<std::set<OutputName>> inputDrvs;
+     * candidate template ignored: could not match 'forward_list' against 'DerivedPathMap'
+     */
+    auto operator <=>(const Derivation &) const = default;
 };
 
 

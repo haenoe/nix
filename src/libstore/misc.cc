@@ -218,7 +218,7 @@ void Store::queryMissing(const std::vector<DerivedPath> & targets,
             if (knownOutputPaths && invalid.empty()) return;
 
             auto drv = make_ref<Derivation>(derivationFromPath(drvPath));
-            ParsedDerivation parsedDrv(StorePath(drvPath), *drv);
+            ParsedDerivation parsedDrv(*drv);
 
             if (!knownOutputPaths && settings.useSubstitutes && parsedDrv.substitutesAllowed()) {
                 experimentalFeatureSettings.require(Xp::CaDerivations);

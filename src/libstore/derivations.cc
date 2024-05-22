@@ -5,7 +5,7 @@
 #include "types.hh"
 #include "util.hh"
 #include "split.hh"
-#include "parsed-derivation.hh"
+#include "parsed-derivations.hh"
 #include "common-protocol.hh"
 #include "common-protocol-impl.hh"
 #include <boost/container/small_vector.hpp>
@@ -459,15 +459,16 @@ Derivation parseDerivation(
         drv.env.insert_or_assign(std::move(name), std::move(value));
     }
 
-    options = DerivationOptions::fromEnv(/*env*/ *this);
-
     expect(str, ")");
+
+    drv.options = DerivationOptions::fromEnv(/*env*/ drv);
+
     return drv;
 }
 
-DerivationOptions::fromEnv(const BasicDerication /*StringPairs*/ & drv)
+DerivationOptions DerivationOptions::fromEnv(const BasicDerivation /*StringPairs*/ & drv)
 {
-    ParsedDerivation parsed { *this };
+    ParsedDerivation parsed = { drv };
 
     return {
         .noChroot = parsed.getBoolAttr("__noChroot"),
@@ -972,7 +973,7 @@ Source & readDerivation(Source & in, const StoreDirConfig & store, BasicDerivati
         drv.env[key] = value;
     }
 
-    options = DerivationOptions::fromEnv(/*drv.env*/ drv);
+    drv.options = DerivationOptions::fromEnv(/*drv.env*/drv);
 
     return in;
 }

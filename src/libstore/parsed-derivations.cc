@@ -5,7 +5,7 @@
 
 namespace nix {
 
-ParsedDerivation::ParsedDerivation(BasicDerivation & drv)
+ParsedDerivation::ParsedDerivation(const BasicDerivation & drv)
     : drv(drv)
 {
     /* Parse the __json attribute, if any. */
@@ -69,11 +69,11 @@ std::optional<Strings> ParsedDerivation::getStringsAttr(const std::string & name
             return {};
         else {
             if (!i->is_array())
-                throw Error("attribute '%s' of derivation '%s' must be a list of strings", name, drvPath.to_string());
+                throw Error("attribute '%s' of derivation must be a list of strings", name);
             Strings res;
             for (auto j = i->begin(); j != i->end(); ++j) {
                 if (!j->is_string())
-                    throw Error("attribute '%s' of derivation '%s' must be a list of strings", name, drvPath.to_string());
+                    throw Error("attribute '%s' of derivation must be a list of strings", name);
                 res.push_back(j->get<std::string>());
             }
             return res;
