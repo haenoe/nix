@@ -641,7 +641,7 @@ void LocalDerivationGoal::startBuilder()
         PathSet allowedPaths = settings.allowedImpureHostPrefixes;
 
         /* This works like the above, except on a per-derivation level */
-        auto impurePaths = parsedDrv->getStringsAttr("__impureHostDeps").value_or(Strings());
+        auto impurePaths = drv->options.impureHostDeps;
 
         for (auto & i : impurePaths) {
             bool found = false;
@@ -661,7 +661,7 @@ void LocalDerivationGoal::startBuilder()
                 throw Error("derivation '%s' requested impure path '%s', but it was not in allowed-impure-host-deps",
                     worker.store.printStorePath(drvPath), i);
 
-            /* Allow files in __impureHostDeps to be missing; e.g.
+            /* Allow files in drv->options.impureHostDeps to be missing; e.g.
                macOS 11+ has no /usr/lib/libSystem*.dylib */
             pathsInChroot[i] = {i, true};
         }

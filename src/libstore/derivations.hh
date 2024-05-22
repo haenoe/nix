@@ -296,8 +296,12 @@ struct DerivationOptions
      */
     bool noChroot = false;
 
+    /**
+     * List of paths the derivation has access to.
+     */
+
+    Strings impureHostDeps = {};
 #if 0
-src/libstore/unix/build/local-derivation-goal.cc:        auto impurePaths = parsedDrv->getStringsAttr("__impureHostDeps").value_or(Strings());
 src/libstore/unix/build/local-derivation-goal.cc:        for (auto & i : parsedDrv->getStringsAttr("impureEnvVars").value_or(Strings())) {
 src/libstore/unix/build/local-derivation-goal.cc:            bool allowLocalNetworking = parsedDrv->getBoolAttr("__darwinAllowLocalNetworking");
 src/libstore/unix/build/local-derivation-goal.cc:            checks.allowedReferences = parsedDrv->getStringsAttr("allowedReferences");
