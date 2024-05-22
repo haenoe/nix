@@ -1156,7 +1156,7 @@ void LocalDerivationGoal::initEnv()
         if (!impureEnv.empty())
             experimentalFeatureSettings.require(Xp::ConfigurableImpureEnv);
 
-        for (auto & i : parsedDrv->getStringsAttr("impureEnvVars").value_or(Strings())) {
+        for (auto & i : drv->options.impureEnvVars){
             auto envVar = impureEnv.find(i);
             if (envVar != impureEnv.end()) {
                 env[i] = envVar->second;

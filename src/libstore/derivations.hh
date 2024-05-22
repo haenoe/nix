@@ -301,8 +301,10 @@ struct DerivationOptions
      */
 
     Strings impureHostDeps = {};
+
+    Strings impureEnvVars = {};
+
 #if 0
-src/libstore/unix/build/local-derivation-goal.cc:        for (auto & i : parsedDrv->getStringsAttr("impureEnvVars").value_or(Strings())) {
 src/libstore/unix/build/local-derivation-goal.cc:            bool allowLocalNetworking = parsedDrv->getBoolAttr("__darwinAllowLocalNetworking");
 src/libstore/unix/build/local-derivation-goal.cc:            checks.allowedReferences = parsedDrv->getStringsAttr("allowedReferences");
 src/libstore/unix/build/local-derivation-goal.cc:            checks.allowedRequisites = parsedDrv->getStringsAttr("allowedRequisites");
