@@ -2937,7 +2937,7 @@ void LocalDerivationGoal::checkOutputs(const std::map<std::string, ValidPathInfo
             // legacy non-structured-attributes case
             Checks checks;
             checks.ignoreSelfRefs = true;
-            checks.allowedReferences = parsedDrv->getStringsAttr("allowedReferences");
+            checks.allowedReferences = drv->options.allowedReferences;
             checks.allowedRequisites = parsedDrv->getStringsAttr("allowedRequisites");
             checks.disallowedReferences = parsedDrv->getStringsAttr("disallowedReferences");
             checks.disallowedRequisites = parsedDrv->getStringsAttr("disallowedRequisites");

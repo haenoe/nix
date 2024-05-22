@@ -315,8 +315,14 @@ struct DerivationOptions
      */
     bool allowLocalNetworking = false;
 
+    /**
+     * env: allowedReferences
+     *
+     * Just for Darwin
+     */
+    Strings allowedReferences = {};
+
 #if 0
-src/libstore/unix/build/local-derivation-goal.cc:            checks.allowedReferences = parsedDrv->getStringsAttr("allowedReferences");
 src/libstore/unix/build/local-derivation-goal.cc:            checks.allowedRequisites = parsedDrv->getStringsAttr("allowedRequisites");
 src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedReferences = parsedDrv->getStringsAttr("disallowedReferences");
 src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedRequisites = parsedDrv->getStringsAttr("disallowedRequisites")
