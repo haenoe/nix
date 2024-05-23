@@ -470,9 +470,33 @@ DerivationOptions DerivationOptions::fromEnv(const BasicDerivation /*StringPairs
 {
     ParsedDerivation parsed = { drv };
 
-    return {
+    DerivationOptions opts = {
         .noChroot = parsed.getBoolAttr("__noChroot"),
+        .allowLocalNetworking = parsed.getBoolAttr("__darwinAllowLocalNetworking"),
     };
+
+    if (auto additionalSandboxProfile = parsed.getStringAttr("__sandboxProfile"))
+        opts.additionalSandboxProfile = *additionalSandboxProfile;
+
+    if (auto impureHostDeps = parsed.getStringsAttr("__impureHostDeps"))
+        opts.impureHostDeps = *impureHostDeps;
+
+    if (auto impureEnvVars = parsed.getStringsAttr("__impureEnvVars"))
+        opts.impureEnvVars = *impureEnvVars;
+
+    if (auto allowedReferences = parsed.getStringsAttr("allowedReferences"))
+        opts.allowedReferences = *allowedReferences;
+
+    if (auto disallowedReferences = parsed.getStringsAttr("disallowedReferences"))
+        opts.disallowedReferences = *disallowedReferences;
+
+    if (auto allowedRequisites = parsed.getStringsAttr("allowedRequisites"))
+        opts.allowedRequisites = *allowedRequisites;
+
+    if (auto disallowedRequisites = parsed.getStringsAttr("disallowedRequisites"))
+        opts.disallowedRequisites = *disallowedRequisites;
+
+    return opts;
 }
 
 /**
