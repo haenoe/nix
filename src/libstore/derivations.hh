@@ -273,10 +273,6 @@ struct DerivationType {
     bool hasKnownOutputPaths() const;
 };
 
-/**
- * TODO: Is this the correct way? I need to have `BasicDerivation` available
- * for `DerivationOptions::fromEnv`
- */
 struct BasicDerivation;
 
 struct DerivationOptions
@@ -317,13 +313,15 @@ struct DerivationOptions
 
     /**
      * env: allowedReferences
-     *
-     * Just for Darwin
      */
     Strings allowedReferences = {};
 
+    /**
+     * env: allowedRequisites
+     */
+    Strings allowedRequisites = {};
+
 #if 0
-src/libstore/unix/build/local-derivation-goal.cc:            checks.allowedRequisites = parsedDrv->getStringsAttr("allowedRequisites");
 src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedReferences = parsedDrv->getStringsAttr("disallowedReferences");
 src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedRequisites = parsedDrv->getStringsAttr("disallowedRequisites")
 #endif

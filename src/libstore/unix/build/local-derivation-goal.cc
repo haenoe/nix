@@ -2938,7 +2938,7 @@ void LocalDerivationGoal::checkOutputs(const std::map<std::string, ValidPathInfo
             Checks checks;
             checks.ignoreSelfRefs = true;
             checks.allowedReferences = drv->options.allowedReferences;
-            checks.allowedRequisites = parsedDrv->getStringsAttr("allowedRequisites");
+            checks.allowedRequisites = drv->options.allowedRequisites;
             checks.disallowedReferences = parsedDrv->getStringsAttr("disallowedReferences");
             checks.disallowedRequisites = parsedDrv->getStringsAttr("disallowedRequisites");
             applyChecks(checks);
