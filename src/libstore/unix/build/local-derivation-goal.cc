@@ -2940,7 +2940,7 @@ void LocalDerivationGoal::checkOutputs(const std::map<std::string, ValidPathInfo
             checks.allowedReferences = drv->options.allowedReferences;
             checks.allowedRequisites = drv->options.allowedRequisites;
             checks.disallowedReferences = drv->options.disallowedReferences;
-            checks.disallowedRequisites = parsedDrv->getStringsAttr("disallowedRequisites");
+            checks.disallowedRequisites = drv->options.disallowedRequisites;
             applyChecks(checks);
         }
     }

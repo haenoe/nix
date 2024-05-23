@@ -326,9 +326,10 @@ struct DerivationOptions
      */
     Strings allowedRequisites = {};
 
-#if 0
-src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedRequisites = parsedDrv->getStringsAttr("disallowedRequisites")
-#endif
+    /**
+     * env: disallowedRequisites
+     */
+    Strings disallowedRequisites = {};
 
     bool operator ==(const DerivationOptions &) const = default;
     auto operator <=>(const DerivationOptions &) const = default;
