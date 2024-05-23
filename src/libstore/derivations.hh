@@ -317,12 +317,16 @@ struct DerivationOptions
     Strings allowedReferences = {};
 
     /**
+     * env: disallowedReferences
+     */
+    Strings disallowedReferences = {};
+
+    /**
      * env: allowedRequisites
      */
     Strings allowedRequisites = {};
 
 #if 0
-src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedReferences = parsedDrv->getStringsAttr("disallowedReferences");
 src/libstore/unix/build/local-derivation-goal.cc:            checks.disallowedRequisites = parsedDrv->getStringsAttr("disallowedRequisites")
 #endif
 
