@@ -177,10 +177,6 @@ void LocalDerivationGoal::killSandbox(bool getStats)
 
 void LocalDerivationGoal::tryLocalBuild()
 {
-#if __APPLE__
-    additionalSandboxProfile = parsedDrv->getStringAttr("__sandboxProfile").value_or("");
-#endif
-
     unsigned int curBuilds = worker.getNrLocalBuilds();
     if (curBuilds >= settings.maxBuildJobs) {
         state = &DerivationGoal::tryToBuild;
@@ -198,7 +194,7 @@ void LocalDerivationGoal::tryLocalBuild()
                 throw Error("derivation '%s' has '__noChroot' set, "
                     "but that's not allowed when 'sandbox' is 'true'", worker.store.printStorePath(drvPath));
 #if __APPLE__
-            if (additionalSandboxProfile != "")
+            if (drv->options.additionalSandboxProfile != "")
                 throw Error("derivation '%s' specifies a sandbox profile, "
                     "but this is only allowed when 'sandbox' is 'relaxed'", worker.store.printStorePath(drvPath));
 #endif
@@ -2099,7 +2095,7 @@ void LocalDerivationGoal::runChild()
                 }
                 sandboxProfile += ")\n";
 
-                sandboxProfile += additionalSandboxProfile;
+                sandboxProfile += drv->options.additionalSandboxProfile;
             } else
                 sandboxProfile +=
                     #include "sandbox-minimal.sb"
