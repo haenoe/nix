@@ -461,14 +461,14 @@ Derivation parseDerivation(
 
     expect(str, ")");
 
-    drv.options = DerivationOptions::fromEnv(/*env*/ drv);
+    drv.options = DerivationOptions::fromEnv(drv.env);
 
     return drv;
 }
 
-DerivationOptions DerivationOptions::fromEnv(const BasicDerivation /*StringPairs*/ & drv)
+DerivationOptions DerivationOptions::fromEnv(const StringPairs & env)
 {
-    ParsedDerivation parsed = {drv};
+    ParsedDerivation parsed = {env};
 
     DerivationOptions defaults = {};
 
@@ -984,7 +984,7 @@ Source & readDerivation(Source & in, const StoreDirConfig & store, BasicDerivati
         drv.env[key] = value;
     }
 
-    drv.options = DerivationOptions::fromEnv(/*drv.env*/drv);
+    drv.options = DerivationOptions::fromEnv(drv.env);
 
     return in;
 }

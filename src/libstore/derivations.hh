@@ -372,7 +372,7 @@ struct DerivationOptions
      * but this should become possible again once we shrink down
      * `ParsedDerivation` so it just as the `get*Attr` methods.
      */
-    static DerivationOptions fromEnv(const BasicDerivation /*StringPairs*/ & env);
+    static DerivationOptions fromEnv(const StringPairs & env);
 };
 
 struct BasicDerivation
@@ -486,17 +486,9 @@ struct Derivation : BasicDerivation
         const nlohmann::json & json,
         const ExperimentalFeatureSettings & xpSettings = experimentalFeatureSettings);
 
-    bool operator ==(const Derivation &) const = default;
-
-    /* TODO: Fix
-     * src/libstore/derivations.hh:429:10: warning: explicitly defaulted three-way comparison operator is implicitly deleted [-Wdefaulted-function-deleted]
-     *  auto operator <=>(const Derivation &) const = default;
-     *       ^
-     * src/libstore/derivations.hh:380:42: note: defaulted 'operator<=>' is implicitly deleted because there is no viable three-way comparison function for member 'inputDrvs'
-     *  DerivedPathMap<std::set<OutputName>> inputDrvs;
-     * candidate template ignored: could not match 'forward_list' against 'DerivedPathMap'
-     */
-    auto operator <=>(const Derivation &) const = default;
+    GENERATE_CMP(Derivation,
+            static_cast<const BasicDerivation &>(*me),
+            me->inputDrvs);
 };
 
 

@@ -1174,7 +1174,7 @@ void LocalDerivationGoal::initEnv()
 
 void LocalDerivationGoal::writeStructuredAttrs()
 {
-    if (auto structAttrsJson = parsedDrv->prepareStructuredAttrs(worker.store, inputPaths)) {
+    if (auto structAttrsJson = parsedDrv->prepareStructuredAttrs(worker.store, inputPaths, *drv)) {
         auto json = structAttrsJson.value();
         nlohmann::json rewritten;
         for (auto & [i, v] : json["outputs"].get<nlohmann::json::object_t>()) {
