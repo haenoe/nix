@@ -30,7 +30,8 @@ public:
 
     std::optional<Strings> getStringsAttr(const std::string & name) const;
 
-    std::optional<nlohmann::json> prepareStructuredAttrs(Store & store, const StorePathSet & inputPaths, const BasicDerivation & drv);
+    std::optional<nlohmann::json>
+    prepareStructuredAttrs(Store & store, const StorePathSet & inputPaths, const BasicDerivation & drv);
 };
 
 std::string writeStructuredAttrsShell(const nlohmann::json & json);
