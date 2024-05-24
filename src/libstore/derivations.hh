@@ -12,6 +12,7 @@
 #include "variant-wrapper.hh"
 
 #include <map>
+#include <optional>
 #include <variant>
 
 
@@ -313,23 +314,33 @@ struct DerivationOptions
 
     /**
      * env: allowedReferences
+     *
+     * A value of `nullopt` indicates that the check is skipped. This means
+     * that all references are allowed.
      */
-    Strings allowedReferences = {};
+    std::optional<Strings> allowedReferences = std::nullopt;
 
     /**
      * env: disallowedReferences
+     *
+     * A value of `nullopt` indicates that the check is skipped. This means
+     * that there are no disallowed references.
      */
-    Strings disallowedReferences = {};
+    std::optional<Strings> disallowedReferences = std::nullopt;
 
     /**
      * env: allowedRequisites
+     *
+     * See `allowedReferences`
      */
-    Strings allowedRequisites = {};
+    std::optional<Strings> allowedRequisites = std::nullopt;
 
     /**
      * env: disallowedRequisites
+     *
+     * See `disallowedReferences`
      */
-    Strings disallowedRequisites = {};
+    std::optional<Strings> disallowedRequisites = std::nullopt;
 
     bool operator ==(const DerivationOptions &) const = default;
     auto operator <=>(const DerivationOptions &) const = default;

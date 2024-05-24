@@ -2846,7 +2846,7 @@ void LocalDerivationGoal::checkOutputs(const std::map<std::string, ValidPathInfo
 
             auto checkRefs = [&](const std::optional<Strings> & value, bool allowed, bool recursive)
             {
-                if (!value || value->empty()) return;
+                if (!value) return;
 
                 /* Parse a list of reference specifiers.  Each element must
                    either be a store path, or the symbolic name of the output
