@@ -342,6 +342,21 @@ struct DerivationOptions
      */
     std::optional<Strings> disallowedRequisites = std::nullopt;
 
+    /**
+     * env: requiredSystemFeatures
+     */
+    Strings requiredSystemFeatures = {};
+
+    /**
+     * env: preferLocalBuild
+     */
+    bool preferLocalBuild = false;
+
+    /**
+     * env: allowSubstitutes
+     */
+    bool allowSubstitutes = true;
+
     bool operator ==(const DerivationOptions &) const = default;
     auto operator <=>(const DerivationOptions &) const = default;
 
@@ -450,6 +465,16 @@ struct Derivation : BasicDerivation
      * allow.
      */
     void checkInvariants(Store & store, const StorePath & drvPath) const;
+
+    StringSet getRequiredSystemFeatures() const;
+
+    bool canBuildLocally(Store & localStore) const;
+
+    bool willBuildLocally(Store & localStore) const;
+
+    bool substitutesAllowed() const;
+
+    bool useUidRange() const;
 
     Derivation() = default;
     Derivation(const BasicDerivation & bd) : BasicDerivation(bd) { }

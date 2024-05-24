@@ -228,7 +228,7 @@ void LocalDerivationGoal::tryLocalBuild()
 
     if (useBuildUsers()) {
         if (!buildUser)
-            buildUser = acquireUserLock(parsedDrv->useUidRange() ? 65536 : 1, useChroot);
+            buildUser = acquireUserLock(drv->useUidRange() ? 65536 : 1, useChroot);
 
         if (!buildUser) {
             if (!actLock)
@@ -488,10 +488,10 @@ void LocalDerivationGoal::startBuilder()
     killSandbox(false);
 
     /* Right platform? */
-    if (!parsedDrv->canBuildLocally(worker.store))
+    if (!drv->canBuildLocally(worker.store))
         throw Error("a '%s' with features {%s} is required to build '%s', but I am a '%s' with features {%s}",
             drv->platform,
-            concatStringsSep(", ", parsedDrv->getRequiredSystemFeatures()),
+            concatStringsSep(", ", drv->getRequiredSystemFeatures()),
             worker.store.printStorePath(drvPath),
             settings.thisSystem,
             concatStringsSep<StringSet>(", ", worker.store.systemFeatures));
@@ -693,10 +693,10 @@ void LocalDerivationGoal::startBuilder()
            nobody account.  The latter is kind of a hack to support
            Samba-in-QEMU. */
         createDirs(chrootRootDir + "/etc");
-        if (parsedDrv->useUidRange())
+        if (drv->useUidRange())
             chownToBuilder(chrootRootDir + "/etc");
 
-        if (parsedDrv->useUidRange() && (!buildUser || buildUser->getUIDCount() < 65536))
+        if (drv->useUidRange() && (!buildUser || buildUser->getUIDCount() < 65536))
             throw Error("feature 'uid-range' requires the setting '%s' to be enabled", settings.autoAllocateUids.name);
 
         /* Declare the build user's group so that programs get a consistent
@@ -755,7 +755,7 @@ void LocalDerivationGoal::startBuilder()
         }
 
 #else
-        if (parsedDrv->useUidRange())
+        if (drv->useUidRange())
             throw Error("feature 'uid-range' is not supported on this platform");
         #if __APPLE__
             /* We don't really have any parent prep work to do (yet?)
@@ -765,7 +765,7 @@ void LocalDerivationGoal::startBuilder()
         #endif
 #endif
     } else {
-        if (parsedDrv->useUidRange())
+        if (drv->useUidRange())
             throw Error("feature 'uid-range' is only supported in sandboxed builds");
     }
 
@@ -810,7 +810,7 @@ void LocalDerivationGoal::startBuilder()
 
     /* Fire up a Nix daemon to process recursive Nix calls from the
        builder. */
-    if (parsedDrv->getRequiredSystemFeatures().count("recursive-nix"))
+    if (drv->getRequiredSystemFeatures().count("recursive-nix"))
         startDaemon();
 
     /* Run the builder. */
@@ -1899,7 +1899,7 @@ void LocalDerivationGoal::runChild()
             }
 
             /* Make /etc unwritable */
-            if (!parsedDrv->useUidRange())
+            if (!drv->useUidRange())
                 chmod_(chrootRootDir + "/etc", 0555);
 
             /* Unshare this mount namespace. This is necessary because

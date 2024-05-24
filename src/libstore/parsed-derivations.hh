@@ -30,16 +30,6 @@ public:
 
     std::optional<Strings> getStringsAttr(const std::string & name) const;
 
-    StringSet getRequiredSystemFeatures() const;
-
-    bool canBuildLocally(Store & localStore) const;
-
-    bool willBuildLocally(Store & localStore) const;
-
-    bool substitutesAllowed() const;
-
-    bool useUidRange() const;
-
     std::optional<nlohmann::json> prepareStructuredAttrs(Store & store, const StorePathSet & inputPaths);
 };
 

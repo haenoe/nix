@@ -468,9 +468,9 @@ Derivation parseDerivation(
 
 DerivationOptions DerivationOptions::fromEnv(const BasicDerivation /*StringPairs*/ & drv)
 {
-    ParsedDerivation parsed = { drv };
+    ParsedDerivation parsed = {drv};
 
-    DerivationOptions defaults = { };
+    DerivationOptions defaults = {};
 
     return {
         .additionalSandboxProfile = parsed.getStringAttr("__sandboxProfile").value_or(defaults.additionalSandboxProfile),
@@ -482,6 +482,7 @@ DerivationOptions DerivationOptions::fromEnv(const BasicDerivation /*StringPairs
         .disallowedReferences = parsed.getStringsAttr("disallowedReferences"),
         .allowedRequisites = parsed.getStringsAttr("allowedRequisites"),
         .disallowedRequisites = parsed.getStringsAttr("disallowedRequisites"),
+        .requiredSystemFeatures = parsed.getStringsAttr("requiredSystemFeatures").value_or(defaults.requiredSystemFeatures),
     };
 }
 
@@ -1327,6 +1328,48 @@ DerivationOutput DerivationOutput::fromJSON(
     }
 }
 
+StringSet Derivation::getRequiredSystemFeatures() const
+{
+    // FIXME: cache this?
+    StringSet res;
+    for (auto & i : this->options.requiredSystemFeatures)
+        res.insert(i);
+    if (!this->type().hasKnownOutputPaths())
+        res.insert("ca-derivations");
+    return res;
+}
+
+bool Derivation::canBuildLocally(Store & localStore) const
+{
+    if (this->platform != settings.thisSystem.get()
+        && !settings.extraPlatforms.get().count(this->platform)
+        && !this->isBuiltin())
+        return false;
+
+    if (settings.maxBuildJobs.get() == 0
+        && !this->isBuiltin())
+        return false;
+
+    for (auto & feature : getRequiredSystemFeatures())
+        if (!localStore.systemFeatures.get().count(feature)) return false;
+
+    return true;
+}
+
+bool Derivation::willBuildLocally(Store & localStore) const
+{
+    return this->options.preferLocalBuild && canBuildLocally(localStore);
+}
+
+bool Derivation::substitutesAllowed() const
+{
+    return settings.alwaysAllowSubstitutes ? true : this->options.allowSubstitutes;
+}
+
+bool Derivation::useUidRange() const
+{
+    return getRequiredSystemFeatures().count("uid-range");
+}
 
 nlohmann::json Derivation::toJSON(const StoreDirConfig & store) const
 {
