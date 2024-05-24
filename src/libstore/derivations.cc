@@ -481,7 +481,7 @@ DerivationOptions DerivationOptions::fromEnv(const BasicDerivation /*StringPairs
     if (auto impureHostDeps = parsed.getStringsAttr("__impureHostDeps"))
         opts.impureHostDeps = *impureHostDeps;
 
-    if (auto impureEnvVars = parsed.getStringsAttr("__impureEnvVars"))
+    if (auto impureEnvVars = parsed.getStringsAttr("impureEnvVars"))
         opts.impureEnvVars = *impureEnvVars;
 
     if (auto allowedReferences = parsed.getStringsAttr("allowedReferences"))
