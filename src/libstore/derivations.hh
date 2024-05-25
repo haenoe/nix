@@ -417,8 +417,14 @@ struct BasicDerivation
 
     static std::string_view nameFromPath(const StorePath & storePath);
 
-    bool operator ==(const BasicDerivation &) const = default;
-    auto operator <=>(const BasicDerivation &) const = default;
+    GENERATE_CMP(BasicDerivation,
+            me->outputs,
+            me->inputSrcs,
+            me->platform,
+            me->builder,
+            me->args,
+            me->env,
+            me->name);
 };
 
 class Store;
