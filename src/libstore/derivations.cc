@@ -1,5 +1,6 @@
 #include "derivations.hh"
 #include "downstream-placeholder.hh"
+#include "error.hh"
 #include "store-api.hh"
 #include "globals.hh"
 #include "types.hh"
@@ -468,7 +469,7 @@ Derivation parseDerivation(
 
 DerivationOptions DerivationOptions::fromEnv(const StringPairs & env)
 {
-    ParsedDerivation parsed = {env};
+    ParsedDerivation parsed(env);
 
     DerivationOptions defaults = {};
 
@@ -669,6 +670,12 @@ std::string Derivation::unparse(const StoreDirConfig & store, bool maskOutputs,
     s += ','; printUnquotedString(s, platform);
     s += ','; printString(s, builder);
     s += ','; printStrings(s, args.begin(), args.end());
+
+    auto optionsFromEnv = DerivationOptions::fromEnv(env);
+
+    if (optionsFromEnv != options)
+        throw Error(
+            "'drv.options' and 'drv.env' are out of sync. This is probably an internal error, please open an issue!");
 
     s += ",[";
     first = true;

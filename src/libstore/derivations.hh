@@ -301,7 +301,7 @@ struct DerivationOptions
     Strings impureHostDeps = {};
 
     /**
-     * env: __impureEnvVars
+     * env: impureEnvVars
      */
     Strings impureEnvVars = {};
 
