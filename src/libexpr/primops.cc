@@ -1319,7 +1319,6 @@ static void derivationStrictInternal(
                     else if (i->name == state.sOutputs)
                         handleOutputs(tokenizeString<Strings>(s));
                 }
-
             }
 
         } catch (Error & e) {
@@ -1333,6 +1332,8 @@ static void derivationStrictInternal(
         drv.env.emplace("__json", jsonObject->dump());
         jsonObject.reset();
     }
+
+    drv.options = DerivationOptions::fromEnv(drv.env);
 
     /* Everything in the context of the strings in the derivation
        attributes should be added as dependencies of the resulting
