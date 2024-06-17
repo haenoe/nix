@@ -30,6 +30,8 @@
     "additionalSandboxProfile": "sandcastle",
     "allowLocalNetworking": true,
     "allowSubstitutes": false,
+    "allowedReferences": null,
+    "allowedRequisites": null,
     "disallowedReferences": null,
     "disallowedRequisites": null,
     "impureEnvVars": [

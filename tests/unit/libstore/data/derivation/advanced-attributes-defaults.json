@@ -17,6 +17,8 @@
     "additionalSandboxProfile": "",
     "allowLocalNetworking": false,
     "allowSubstitutes": true,
+    "allowedReferences": null,
+    "allowedRequisites": null,
     "disallowedReferences": null,
     "disallowedRequisites": null,
     "impureEnvVars": [],

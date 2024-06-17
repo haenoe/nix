@@ -12,6 +12,7 @@
 #include "common-protocol-impl.hh"
 #include <boost/container/small_vector.hpp>
 #include <nlohmann/json.hpp>
+#include <optional>
 
 namespace nix {
 
@@ -1512,10 +1513,10 @@ DerivationOptions adl_serializer<DerivationOptions>::from_json(const json & json
     res.impureEnvVars = getStringList(valueAt(json, "impureEnvVars"));
     res.allowLocalNetworking = getBoolean(valueAt(json, "allowLocalNetworking"));
 
-    res.allowedReferences = optionalValueAt(json, "allowedReferences");
-    res.allowedRequisites = optionalValueAt(json, "allowedRequisites");
-    res.disallowedReferences = optionalValueAt(json, "disallowedReferences");
-    res.disallowedRequisites = optionalValueAt(json, "disallowedRequisites");
+    res.allowedReferences = nullableValueAt(json, "allowedReferences");
+    res.allowedRequisites = nullableValueAt(json, "allowedRequisites");
+    res.disallowedReferences = nullableValueAt(json, "disallowedReferences");
+    res.disallowedRequisites = nullableValueAt(json, "disallowedRequisites");
 
     res.requiredSystemFeatures = getStringList(valueAt(json, "requiredSystemFeatures"));
     res.preferLocalBuild = getBoolean(valueAt(json, "preferLocalBuild"));
@@ -1531,8 +1532,8 @@ void adl_serializer<DerivationOptions>::to_json(json & json, DerivationOptions o
     json["impureEnvVars"] = o.impureEnvVars;
     json["allowLocalNetworking"] = o.allowLocalNetworking;
 
-    json["disallowedReferences"] = o.allowedReferences;
-    json["disallowedRequisites"] = o.allowedRequisites;
+    json["allowedReferences"] = o.allowedReferences;
+    json["allowedRequisites"] = o.allowedRequisites;
     json["disallowedReferences"] = o.disallowedReferences;
     json["disallowedRequisites"] = o.disallowedRequisites;
 
