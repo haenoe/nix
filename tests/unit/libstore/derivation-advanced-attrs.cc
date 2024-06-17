@@ -79,22 +79,20 @@ TEST_F(DerivationAdvancedAttrsTest, Derivation_advancedAttributes_defaults)
 
         auto drvPath = writeDerivation(*store, got, NoRepair, true);
 
-        ParsedDerivation parsedDrv(drvPath, got);
-
-        EXPECT_EQ(parsedDrv.getStringAttr("__sandboxProfile").value_or(""), "");
-        EXPECT_EQ(parsedDrv.getBoolAttr("__noChroot"), false);
-        EXPECT_EQ(parsedDrv.getStringsAttr("__impureHostDeps").value_or(Strings()), Strings());
-        EXPECT_EQ(parsedDrv.getStringsAttr("impureEnvVars").value_or(Strings()), Strings());
-        EXPECT_EQ(parsedDrv.getBoolAttr("__darwinAllowLocalNetworking"), false);
-        EXPECT_EQ(parsedDrv.getStringsAttr("allowedReferences"), std::nullopt);
-        EXPECT_EQ(parsedDrv.getStringsAttr("allowedRequisites"), std::nullopt);
-        EXPECT_EQ(parsedDrv.getStringsAttr("disallowedReferences"), std::nullopt);
-        EXPECT_EQ(parsedDrv.getStringsAttr("disallowedRequisites"), std::nullopt);
-        EXPECT_EQ(parsedDrv.getRequiredSystemFeatures(), StringSet());
-        EXPECT_EQ(parsedDrv.canBuildLocally(*store), false);
-        EXPECT_EQ(parsedDrv.willBuildLocally(*store), false);
-        EXPECT_EQ(parsedDrv.substitutesAllowed(), true);
-        EXPECT_EQ(parsedDrv.useUidRange(), false);
+        EXPECT_EQ(got.options.additionalSandboxProfile, "");
+        EXPECT_EQ(got.options.noChroot, false);
+        EXPECT_EQ(got.options.impureHostDeps, Strings());
+        EXPECT_EQ(got.options.impureEnvVars, Strings());
+        EXPECT_EQ(got.options.allowLocalNetworking, false);
+        EXPECT_EQ(got.options.allowedReferences, std::nullopt);
+        EXPECT_EQ(got.options.allowedRequisites, std::nullopt);
+        EXPECT_EQ(got.options.disallowedReferences, std::nullopt);
+        EXPECT_EQ(got.options.disallowedRequisites, std::nullopt);
+        EXPECT_EQ(got.getRequiredSystemFeatures(), StringSet());
+        EXPECT_EQ(got.canBuildLocally(*store), false);
+        EXPECT_EQ(got.willBuildLocally(*store), false);
+        EXPECT_EQ(got.substitutesAllowed(), true);
+        EXPECT_EQ(got.useUidRange(), false);
     });
 };
 
@@ -105,30 +103,28 @@ TEST_F(DerivationAdvancedAttrsTest, Derivation_advancedAttributes)
 
         auto drvPath = writeDerivation(*store, got, NoRepair, true);
 
-        ParsedDerivation parsedDrv(drvPath, got);
-
         StringSet systemFeatures{"rainbow", "uid-range"};
 
-        EXPECT_EQ(parsedDrv.getStringAttr("__sandboxProfile").value_or(""), "sandcastle");
-        EXPECT_EQ(parsedDrv.getBoolAttr("__noChroot"), true);
-        EXPECT_EQ(parsedDrv.getStringsAttr("__impureHostDeps").value_or(Strings()), Strings{"/usr/bin/ditto"});
-        EXPECT_EQ(parsedDrv.getStringsAttr("impureEnvVars").value_or(Strings()), Strings{"UNICORN"});
-        EXPECT_EQ(parsedDrv.getBoolAttr("__darwinAllowLocalNetworking"), true);
+        EXPECT_EQ(got.options.additionalSandboxProfile, "sandcastle");
+        EXPECT_EQ(got.options.noChroot, true);
+        EXPECT_EQ(got.options.impureHostDeps, Strings{"/usr/bin/ditto"});
+        EXPECT_EQ(got.options.impureEnvVars, Strings{"UNICORN"});
+        EXPECT_EQ(got.options.allowLocalNetworking, true);
         EXPECT_EQ(
-            parsedDrv.getStringsAttr("allowedReferences"), Strings{"/nix/store/3c08bzb71z4wiag719ipjxr277653ynp-foo"});
+            got.options.allowedReferences, Strings{"/nix/store/3c08bzb71z4wiag719ipjxr277653ynp-foo"});
         EXPECT_EQ(
-            parsedDrv.getStringsAttr("allowedRequisites"), Strings{"/nix/store/3c08bzb71z4wiag719ipjxr277653ynp-foo"});
+            got.options.allowedRequisites, Strings{"/nix/store/3c08bzb71z4wiag719ipjxr277653ynp-foo"});
         EXPECT_EQ(
-            parsedDrv.getStringsAttr("disallowedReferences"),
+            got.options.disallowedReferences,
             Strings{"/nix/store/7rhsm8i393hm1wcsmph782awg1hi2f7x-bar"});
         EXPECT_EQ(
-            parsedDrv.getStringsAttr("disallowedRequisites"),
+            got.options.disallowedRequisites,
             Strings{"/nix/store/7rhsm8i393hm1wcsmph782awg1hi2f7x-bar"});
-        EXPECT_EQ(parsedDrv.getRequiredSystemFeatures(), systemFeatures);
-        EXPECT_EQ(parsedDrv.canBuildLocally(*store), false);
-        EXPECT_EQ(parsedDrv.willBuildLocally(*store), false);
-        EXPECT_EQ(parsedDrv.substitutesAllowed(), false);
-        EXPECT_EQ(parsedDrv.useUidRange(), true);
+        EXPECT_EQ(got.getRequiredSystemFeatures(), systemFeatures);
+        EXPECT_EQ(got.canBuildLocally(*store), false);
+        EXPECT_EQ(got.willBuildLocally(*store), false);
+        EXPECT_EQ(got.substitutesAllowed(), false);
+        EXPECT_EQ(got.useUidRange(), true);
     });
 };
 
@@ -139,15 +135,15 @@ TEST_F(DerivationAdvancedAttrsTest, Derivation_advancedAttributes_structuredAttr
 
         auto drvPath = writeDerivation(*store, got, NoRepair, true);
 
-        ParsedDerivation parsedDrv(drvPath, got);
-
-        EXPECT_EQ(parsedDrv.getStringAttr("__sandboxProfile").value_or(""), "");
-        EXPECT_EQ(parsedDrv.getBoolAttr("__noChroot"), false);
-        EXPECT_EQ(parsedDrv.getStringsAttr("__impureHostDeps").value_or(Strings()), Strings());
-        EXPECT_EQ(parsedDrv.getStringsAttr("impureEnvVars").value_or(Strings()), Strings());
-        EXPECT_EQ(parsedDrv.getBoolAttr("__darwinAllowLocalNetworking"), false);
+        EXPECT_EQ(got.options.additionalSandboxProfile, "");
+        EXPECT_EQ(got.options.noChroot, false);
+        EXPECT_EQ(got.options.impureHostDeps, Strings());
+        EXPECT_EQ(got.options.impureEnvVars, Strings());
+        EXPECT_EQ(got.options.allowLocalNetworking, false);
 
         {
+            ParsedDerivation parsedDrv(got.env);
+
             auto structuredAttrs_ = parsedDrv.getStructuredAttrs();
             ASSERT_TRUE(structuredAttrs_);
             auto & structuredAttrs = *structuredAttrs_;
@@ -156,11 +152,11 @@ TEST_F(DerivationAdvancedAttrsTest, Derivation_advancedAttributes_structuredAttr
             ASSERT_FALSE(outputChecks_);
         }
 
-        EXPECT_EQ(parsedDrv.getRequiredSystemFeatures(), StringSet());
-        EXPECT_EQ(parsedDrv.canBuildLocally(*store), false);
-        EXPECT_EQ(parsedDrv.willBuildLocally(*store), false);
-        EXPECT_EQ(parsedDrv.substitutesAllowed(), true);
-        EXPECT_EQ(parsedDrv.useUidRange(), false);
+        EXPECT_EQ(got.getRequiredSystemFeatures(), StringSet());
+        EXPECT_EQ(got.canBuildLocally(*store), false);
+        EXPECT_EQ(got.willBuildLocally(*store), false);
+        EXPECT_EQ(got.substitutesAllowed(), true);
+        EXPECT_EQ(got.useUidRange(), false);
     });
 };
 
@@ -171,17 +167,17 @@ TEST_F(DerivationAdvancedAttrsTest, Derivation_advancedAttributes_structuredAttr
 
         auto drvPath = writeDerivation(*store, got, NoRepair, true);
 
-        ParsedDerivation parsedDrv(drvPath, got);
-
         StringSet systemFeatures{"rainbow", "uid-range"};
 
-        EXPECT_EQ(parsedDrv.getStringAttr("__sandboxProfile").value_or(""), "sandcastle");
-        EXPECT_EQ(parsedDrv.getBoolAttr("__noChroot"), true);
-        EXPECT_EQ(parsedDrv.getStringsAttr("__impureHostDeps").value_or(Strings()), Strings{"/usr/bin/ditto"});
-        EXPECT_EQ(parsedDrv.getStringsAttr("impureEnvVars").value_or(Strings()), Strings{"UNICORN"});
-        EXPECT_EQ(parsedDrv.getBoolAttr("__darwinAllowLocalNetworking"), true);
+        EXPECT_EQ(got.options.additionalSandboxProfile, "sandcastle");
+        EXPECT_EQ(got.options.noChroot, true);
+        EXPECT_EQ(got.options.impureHostDeps, Strings{"/usr/bin/ditto"});
+        EXPECT_EQ(got.options.impureEnvVars, Strings{"UNICORN"});
+        EXPECT_EQ(got.options.allowLocalNetworking, true);
 
         {
+            ParsedDerivation parsedDrv(got.env);
+
             auto structuredAttrs_ = parsedDrv.getStructuredAttrs();
             ASSERT_TRUE(structuredAttrs_);
             auto & structuredAttrs = *structuredAttrs_;
@@ -223,11 +219,11 @@ TEST_F(DerivationAdvancedAttrsTest, Derivation_advancedAttributes_structuredAttr
             }
         }
 
-        EXPECT_EQ(parsedDrv.getRequiredSystemFeatures(), systemFeatures);
-        EXPECT_EQ(parsedDrv.canBuildLocally(*store), false);
-        EXPECT_EQ(parsedDrv.willBuildLocally(*store), false);
-        EXPECT_EQ(parsedDrv.substitutesAllowed(), false);
-        EXPECT_EQ(parsedDrv.useUidRange(), true);
+        EXPECT_EQ(got.getRequiredSystemFeatures(), systemFeatures);
+        EXPECT_EQ(got.canBuildLocally(*store), false);
+        EXPECT_EQ(got.willBuildLocally(*store), false);
+        EXPECT_EQ(got.substitutesAllowed(), false);
+        EXPECT_EQ(got.useUidRange(), true);
     });
 };
 
