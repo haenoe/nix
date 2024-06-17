@@ -26,6 +26,25 @@
   },
   "inputSrcs": [],
   "name": "advanced-attributes-structured-attrs",
+  "options": {
+    "additionalSandboxProfile": "sandcastle",
+    "allowLocalNetworking": true,
+    "allowSubstitutes": false,
+    "disallowedReferences": null,
+    "disallowedRequisites": null,
+    "impureEnvVars": [
+      "UNICORN"
+    ],
+    "impureHostDeps": [
+      "/usr/bin/ditto"
+    ],
+    "noChroot": true,
+    "preferLocalBuild": true,
+    "requiredSystemFeatures": [
+      "rainbow",
+      "uid-range"
+    ]
+  },
   "outputs": {
     "bin": {
       "path": "/nix/store/pbzb48v0ycf80jgligcp4n8z0rblna4n-advanced-attributes-structured-attrs-bin"

@@ -1,6 +1,7 @@
 #pragma once
 ///@file
 
+#include "json-impls.hh"
 #include "path.hh"
 #include "types.hh"
 #include "hash.hh"
@@ -10,6 +11,7 @@
 #include "sync.hh"
 #include "comparator.hh"
 #include "variant-wrapper.hh"
+#include <nlohmann/json.hpp>
 
 #include <map>
 #include <optional>
@@ -630,3 +632,5 @@ std::string hashPlaceholder(const OutputNameView outputName);
 extern const Hash impureOutputHash;
 
 }
+
+JSON_IMPL(DerivationOptions)

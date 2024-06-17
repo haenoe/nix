@@ -20,6 +20,18 @@
     "/nix/store/c015dhfh5l0lp6wxyvdn7bmwhbbr6hr9-dep1"
   ],
   "name": "simple-derivation",
+  "options": {
+    "additionalSandboxProfile": "",
+    "allowLocalNetworking": false,
+    "allowSubstitutes": true,
+    "disallowedReferences": null,
+    "disallowedRequisites": null,
+    "impureEnvVars": [],
+    "impureHostDeps": [],
+    "noChroot": false,
+    "preferLocalBuild": false,
+    "requiredSystemFeatures": []
+  },
   "outputs": {},
   "system": "wasm-sel4"
 }

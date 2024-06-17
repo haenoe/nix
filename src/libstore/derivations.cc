@@ -1,6 +1,7 @@
 #include "derivations.hh"
 #include "downstream-placeholder.hh"
 #include "error.hh"
+#include "json-utils.hh"
 #include "store-api.hh"
 #include "globals.hh"
 #include "types.hh"
@@ -1427,6 +1428,7 @@ nlohmann::json Derivation::toJSON(const StoreDirConfig & store) const
     res["builder"] = builder;
     res["args"] = args;
     res["env"] = env;
+    res["options"] = nlohmann::json(options);
 
     return res;
 }
@@ -1484,12 +1486,59 @@ Derivation Derivation::fromJSON(
         throw;
     }
 
+    auto options = valueAt(json, "options");
+
     res.platform = getString(valueAt(json, "system"));
     res.builder = getString(valueAt(json, "builder"));
     res.args = getStringList(valueAt(json, "args"));
     res.env = getStringMap(valueAt(json, "env"));
+    res.options = options.get<DerivationOptions>();
 
     return res;
+}
+
+}
+
+namespace nlohmann {
+
+using namespace nix;
+
+DerivationOptions adl_serializer<DerivationOptions>::from_json(const json & json) {
+    DerivationOptions res;
+
+    res.additionalSandboxProfile = getString(valueAt(json, "additionalSandboxProfile"));
+    res.noChroot = getBoolean(valueAt(json, "noChroot"));
+    res.impureHostDeps = getStringList(valueAt(json, "impureHostDeps"));
+    res.impureEnvVars = getStringList(valueAt(json, "impureEnvVars"));
+    res.allowLocalNetworking = getBoolean(valueAt(json, "allowLocalNetworking"));
+
+    res.allowedReferences = optionalValueAt(json, "allowedReferences");
+    res.allowedRequisites = optionalValueAt(json, "allowedRequisites");
+    res.disallowedReferences = optionalValueAt(json, "disallowedReferences");
+    res.disallowedRequisites = optionalValueAt(json, "disallowedRequisites");
+
+    res.requiredSystemFeatures = getStringList(valueAt(json, "requiredSystemFeatures"));
+    res.preferLocalBuild = getBoolean(valueAt(json, "preferLocalBuild"));
+    res.allowSubstitutes = getBoolean(valueAt(json, "allowSubstitutes"));
+
+    return res;
+}
+
+void adl_serializer<DerivationOptions>::to_json(json & json, DerivationOptions o) {
+    json["additionalSandboxProfile"] = o.additionalSandboxProfile;
+    json["noChroot"] = o.noChroot;
+    json["impureHostDeps"] = o.impureHostDeps;
+    json["impureEnvVars"] = o.impureEnvVars;
+    json["allowLocalNetworking"] = o.allowLocalNetworking;
+
+    json["disallowedReferences"] = o.allowedReferences;
+    json["disallowedRequisites"] = o.allowedRequisites;
+    json["disallowedReferences"] = o.disallowedReferences;
+    json["disallowedRequisites"] = o.disallowedRequisites;
+
+    json["requiredSystemFeatures"] = o.requiredSystemFeatures;
+    json["preferLocalBuild"] = o.preferLocalBuild;
+    json["allowSubstitutes"] = o.allowSubstitutes;
 }
 
 }
