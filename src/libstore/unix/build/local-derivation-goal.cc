@@ -2793,13 +2793,6 @@ void LocalDerivationGoal::checkOutputs(const std::map<std::string, ValidPathInfo
         auto & outputName = output.first;
         auto & info = output.second;
 
-        struct Checks
-        {
-            bool ignoreSelfRefs = false;
-            std::optional<uint64_t> maxSize, maxClosureSize;
-            std::optional<Strings> allowedReferences, allowedRequisites, disallowedReferences, disallowedRequisites;
-        };
-
         /* Compute the closure and closure size of some output. This
            is slightly tricky because some of its references (namely
            other outputs) may not be valid yet. */
@@ -2831,7 +2824,7 @@ void LocalDerivationGoal::checkOutputs(const std::map<std::string, ValidPathInfo
             return std::make_pair(std::move(pathsDone), closureSize);
         };
 
-        auto applyChecks = [&](const Checks & checks)
+        auto applyChecks = [&](const DerivationOptions::OutputChecks & checks)
         {
             if (checks.maxSize && info.narSize > *checks.maxSize)
                 throw BuildError("path '%s' is too large at %d bytes; limit is %d bytes",
@@ -2899,7 +2892,7 @@ void LocalDerivationGoal::checkOutputs(const std::map<std::string, ValidPathInfo
         if (auto structuredAttrs = parsedDrv->getStructuredAttrs()) {
             if (auto outputChecks = get(*structuredAttrs, "outputChecks")) {
                 if (auto output = get(*outputChecks, outputName)) {
-                    Checks checks;
+                    DerivationOptions::OutputChecks checks;
 
                     if (auto maxSize = get(*output, "maxSize"))
                         checks.maxSize = maxSize->get<uint64_t>();
@@ -2931,7 +2924,7 @@ void LocalDerivationGoal::checkOutputs(const std::map<std::string, ValidPathInfo
             }
         } else {
             // legacy non-structured-attributes case
-            Checks checks;
+            DerivationOptions::OutputChecks checks;
             checks.ignoreSelfRefs = true;
             checks.allowedReferences = drv->options.allowedReferences;
             checks.allowedRequisites = drv->options.allowedRequisites;

@@ -280,6 +280,18 @@ struct BasicDerivation;
 
 struct DerivationOptions
 {
+    struct OutputChecks
+    {
+        bool ignoreSelfRefs = false;
+        std::optional<uint64_t> maxSize, maxClosureSize;
+        std::optional<Strings> allowedReferences, allowedRequisites, disallowedReferences, disallowedRequisites;
+
+        bool operator ==(const OutputChecks &) const = default;
+        auto operator <=>(const OutputChecks &) const = default;
+    };
+
+    std::map<std::string, OutputChecks> outputChecks;
+
     /**
      * env: __sandboxProfile
      *
