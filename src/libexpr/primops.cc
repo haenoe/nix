@@ -1400,6 +1400,8 @@ static void derivationStrictInternal(
         ).atPos(v).debugThrow();
     }
 
+    drv.options = DerivationOptions::fromEnv(drv.env);
+
     if (outputHash) {
         /* Handle fixed-output derivations.
 
@@ -1463,8 +1465,6 @@ static void derivationStrictInternal(
                 DerivationOutput::Deferred { });
         }
 
-        drv.options = DerivationOptions::fromEnv(drv.env);
-
         auto hashModulo = hashDerivationModulo(*state.store, Derivation(drv), true);
         switch (hashModulo.kind) {
         case DrvHash::Kind::Regular:
@@ -1491,8 +1491,6 @@ static void derivationStrictInternal(
             }
         }
     }
-
-    drv.options = DerivationOptions::fromEnv(drv.env);
 
     /* Write the resulting term into the Nix store directory. */
     auto drvPath = writeDerivation(*state.store, drv, state.repair);

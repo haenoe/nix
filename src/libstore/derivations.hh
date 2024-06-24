@@ -387,7 +387,7 @@ struct DerivationOptions
      * but this should become possible again once we shrink down
      * `ParsedDerivation` so it just as the `get*Attr` methods.
      */
-    static DerivationOptions fromEnv(const StringPairs & env);
+    static DerivationOptions fromEnv(const StringPairs & env, bool shouldWarn = true);
 };
 
 struct BasicDerivation
@@ -646,4 +646,5 @@ extern const Hash impureOutputHash;
 
 }
 
-JSON_IMPL(DerivationOptions)
+JSON_IMPL(DerivationOptions);
+JSON_IMPL(DerivationOptions::OutputChecks);
