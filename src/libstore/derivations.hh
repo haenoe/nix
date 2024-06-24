@@ -284,13 +284,44 @@ struct DerivationOptions
     {
         bool ignoreSelfRefs = false;
         std::optional<uint64_t> maxSize, maxClosureSize;
-        std::optional<Strings> allowedReferences, allowedRequisites, disallowedReferences, disallowedRequisites;
+
+        /**
+         * env: allowedReferences
+         *
+         * A value of `nullopt` indicates that the check is skipped.
+         * This means that all references are allowed.
+         */
+        std::optional<Strings> allowedReferences = std::nullopt;
+
+        /**
+         * env: disallowedReferences
+         *
+         * A value of `nullopt` indicates that the check is skipped.
+         * This means that there are no disallowed references.
+         */
+        std::optional<Strings> disallowedReferences = std::nullopt;
+
+        /**
+         * env: allowedRequisites
+         *
+         * See `allowedReferences`
+         */
+        std::optional<Strings> allowedRequisites = std::nullopt;
+
+        /**
+         * env: disallowedRequisites
+         *
+         * See `disallowedReferences`
+         */
+        std::optional<Strings> disallowedRequisites = std::nullopt;
 
         bool operator ==(const OutputChecks &) const = default;
         auto operator <=>(const OutputChecks &) const = default;
     };
 
-    std::map<std::string, OutputChecks> outputChecks;
+    std::map<std::string, OutputChecks> checksPerOutput;
+
+    OutputChecks checksAllOutputs;
 
     /**
      * env: __sandboxProfile
@@ -325,36 +356,6 @@ struct DerivationOptions
      * Just for Darwin
      */
     bool allowLocalNetworking = false;
-
-    /**
-     * env: allowedReferences
-     *
-     * A value of `nullopt` indicates that the check is skipped. This means
-     * that all references are allowed.
-     */
-    std::optional<Strings> allowedReferences = std::nullopt;
-
-    /**
-     * env: disallowedReferences
-     *
-     * A value of `nullopt` indicates that the check is skipped. This means
-     * that there are no disallowed references.
-     */
-    std::optional<Strings> disallowedReferences = std::nullopt;
-
-    /**
-     * env: allowedRequisites
-     *
-     * See `allowedReferences`
-     */
-    std::optional<Strings> allowedRequisites = std::nullopt;
-
-    /**
-     * env: disallowedRequisites
-     *
-     * See `disallowedReferences`
-     */
-    std::optional<Strings> disallowedRequisites = std::nullopt;
 
     /**
      * env: requiredSystemFeatures

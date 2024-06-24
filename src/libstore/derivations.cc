@@ -469,6 +469,49 @@ Derivation parseDerivation(
     return drv;
 }
 
+
+static std::map<std::string, DerivationOptions::OutputChecks> parseChecksPerOutput(const ParsedDerivation & parsed)
+{
+    std::map<std::string, DerivationOptions::OutputChecks> res;
+
+    if (auto structuredAttrs = parsed.getStructuredAttrs()) {
+        if (auto outputChecks = get(*structuredAttrs, "outputChecks")) {
+            for (auto & [outputName, output] : getObject(*outputChecks)) {
+                DerivationOptions::OutputChecks checks;
+
+                if (auto maxSize = get(output, "maxSize"))
+                    checks.maxSize = maxSize->get<uint64_t>();
+
+                if (auto maxClosureSize = get(output, "maxClosureSize"))
+                    checks.maxClosureSize = maxClosureSize->get<uint64_t>();
+
+                auto get_ = [&](const std::string & name) -> std::optional<Strings> {
+                    if (auto i = get(output, name)) {
+                        Strings res;
+                        for (auto j = i->begin(); j != i->end(); ++j) {
+                            if (!j->is_string())
+                                throw Error("attribute '%s' must be a list of strings", name);
+                            res.push_back(j->get<std::string>());
+                        }
+                        checks.disallowedRequisites = res;
+                        return res;
+                    }
+                    return {};
+                };
+
+                checks.allowedReferences = get_("allowedReferences");
+                checks.allowedRequisites = get_("allowedRequisites");
+                checks.disallowedReferences = get_("disallowedReferences");
+                checks.disallowedRequisites = get_("disallowedRequisites");
+
+                res.insert_or_assign(output, std::move(checks));
+            }
+        }
+    }
+
+    return res;
+}
+
 DerivationOptions DerivationOptions::fromEnv(const StringPairs & env)
 {
     ParsedDerivation parsed(env);
@@ -476,15 +519,21 @@ DerivationOptions DerivationOptions::fromEnv(const StringPairs & env)
     DerivationOptions defaults = {};
 
     return {
+        .checksPerOutput = parseChecksPerOutput(parsed),
+        .checksAllOutputs = parsed.getStructuredAttrs()
+            ? (DerivationOptions::OutputChecks {}) // ignore
+            : (DerivationOptions::OutputChecks { // legacy non-structured-attributes case
+                .ignoreSelfRefs = true,
+                .allowedReferences = parsed.getStringsAttr("allowedReferences"),
+                .disallowedReferences = parsed.getStringsAttr("disallowedReferences"),
+                .allowedRequisites = parsed.getStringsAttr("allowedRequisites"),
+                .disallowedRequisites = parsed.getStringsAttr("disallowedRequisites"),
+             }),
         .additionalSandboxProfile = parsed.getStringAttr("__sandboxProfile").value_or(defaults.additionalSandboxProfile),
         .noChroot = parsed.getBoolAttr("__noChroot", defaults.noChroot),
         .impureHostDeps = parsed.getStringsAttr("__impureHostDeps").value_or(defaults.impureHostDeps),
         .impureEnvVars = parsed.getStringsAttr("impureEnvVars").value_or(defaults.impureEnvVars),
         .allowLocalNetworking = parsed.getBoolAttr("__darwinAllowLocalNetworking", defaults.allowLocalNetworking),
-        .allowedReferences = parsed.getStringsAttr("allowedReferences"),
-        .disallowedReferences = parsed.getStringsAttr("disallowedReferences"),
-        .allowedRequisites = parsed.getStringsAttr("allowedRequisites"),
-        .disallowedRequisites = parsed.getStringsAttr("disallowedRequisites"),
         .requiredSystemFeatures = parsed.getStringsAttr("requiredSystemFeatures").value_or(defaults.requiredSystemFeatures),
         .preferLocalBuild =  parsed.getBoolAttr("preferLocalBuild", defaults.preferLocalBuild),
         .allowSubstitutes = parsed.getBoolAttr("allowSubstitutes", defaults.allowSubstitutes),
@@ -1513,10 +1562,12 @@ DerivationOptions adl_serializer<DerivationOptions>::from_json(const json & json
     res.impureEnvVars = getStringList(valueAt(json, "impureEnvVars"));
     res.allowLocalNetworking = getBoolean(valueAt(json, "allowLocalNetworking"));
 
-    res.allowedReferences = nullableValueAt(json, "allowedReferences");
-    res.allowedRequisites = nullableValueAt(json, "allowedRequisites");
-    res.disallowedReferences = nullableValueAt(json, "disallowedReferences");
-    res.disallowedRequisites = nullableValueAt(json, "disallowedRequisites");
+    // FIXME separate output checks serializer
+    // FIXME don't forget per-output checks
+    res.checksAllOutputs.allowedReferences = nullableValueAt(json, "allowedReferences");
+    res.checksAllOutputs.allowedRequisites = nullableValueAt(json, "allowedRequisites");
+    res.checksAllOutputs.disallowedReferences = nullableValueAt(json, "disallowedReferences");
+    res.checksAllOutputs.disallowedRequisites = nullableValueAt(json, "disallowedRequisites");
 
     res.requiredSystemFeatures = getStringList(valueAt(json, "requiredSystemFeatures"));
     res.preferLocalBuild = getBoolean(valueAt(json, "preferLocalBuild"));
@@ -1532,10 +1583,12 @@ void adl_serializer<DerivationOptions>::to_json(json & json, DerivationOptions o
     json["impureEnvVars"] = o.impureEnvVars;
     json["allowLocalNetworking"] = o.allowLocalNetworking;
 
-    json["allowedReferences"] = o.allowedReferences;
-    json["allowedRequisites"] = o.allowedRequisites;
-    json["disallowedReferences"] = o.disallowedReferences;
-    json["disallowedRequisites"] = o.disallowedRequisites;
+    // FIXME separate output checks serializer
+    // FIXME don't forget per-output checks
+    json["allowedReferences"] = o.checksAllOutputs.allowedReferences;
+    json["allowedRequisites"] = o.checksAllOutputs.allowedRequisites;
+    json["disallowedReferences"] = o.checksAllOutputs.disallowedReferences;
+    json["disallowedRequisites"] = o.checksAllOutputs.disallowedRequisites;
 
     json["requiredSystemFeatures"] = o.requiredSystemFeatures;
     json["preferLocalBuild"] = o.preferLocalBuild;

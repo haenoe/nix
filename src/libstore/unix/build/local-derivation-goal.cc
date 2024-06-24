@@ -2889,49 +2889,10 @@ void LocalDerivationGoal::checkOutputs(const std::map<std::string, ValidPathInfo
             checkRefs(checks.disallowedRequisites, false, true);
         };
 
-        if (auto structuredAttrs = parsedDrv->getStructuredAttrs()) {
-            if (auto outputChecks = get(*structuredAttrs, "outputChecks")) {
-                if (auto output = get(*outputChecks, outputName)) {
-                    DerivationOptions::OutputChecks checks;
-
-                    if (auto maxSize = get(*output, "maxSize"))
-                        checks.maxSize = maxSize->get<uint64_t>();
-
-                    if (auto maxClosureSize = get(*output, "maxClosureSize"))
-                        checks.maxClosureSize = maxClosureSize->get<uint64_t>();
-
-                    auto get_ = [&](const std::string & name) -> std::optional<Strings> {
-                        if (auto i = get(*output, name)) {
-                            Strings res;
-                            for (auto j = i->begin(); j != i->end(); ++j) {
-                                if (!j->is_string())
-                                    throw Error("attribute '%s' of derivation '%s' must be a list of strings", name, worker.store.printStorePath(drvPath));
-                                res.push_back(j->get<std::string>());
-                            }
-                            checks.disallowedRequisites = res;
-                            return res;
-                        }
-                        return {};
-                    };
-
-                    checks.allowedReferences = get_("allowedReferences");
-                    checks.allowedRequisites = get_("allowedRequisites");
-                    checks.disallowedReferences = get_("disallowedReferences");
-                    checks.disallowedRequisites = get_("disallowedRequisites");
-
-                    applyChecks(checks);
-                }
-            }
-        } else {
-            // legacy non-structured-attributes case
-            DerivationOptions::OutputChecks checks;
-            checks.ignoreSelfRefs = true;
-            checks.allowedReferences = drv->options.allowedReferences;
-            checks.allowedRequisites = drv->options.allowedRequisites;
-            checks.disallowedReferences = drv->options.disallowedReferences;
-            checks.disallowedRequisites = drv->options.disallowedRequisites;
-            applyChecks(checks);
+        if (auto outputChecks = get(drv->options.checksPerOutput, outputName)) {
+            applyChecks(*outputChecks);
         }
+        applyChecks(drv->options.checksAllOutputs);
     }
 }
 

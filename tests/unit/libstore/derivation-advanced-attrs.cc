@@ -85,10 +85,10 @@ TEST_F(DerivationAdvancedAttrsTest, Derivation_advancedAttributes_defaults)
         EXPECT_EQ(got.options.impureHostDeps, Strings());
         EXPECT_EQ(got.options.impureEnvVars, Strings());
         EXPECT_EQ(got.options.allowLocalNetworking, false);
-        EXPECT_EQ(got.options.allowedReferences, std::nullopt);
-        EXPECT_EQ(got.options.allowedRequisites, std::nullopt);
-        EXPECT_EQ(got.options.disallowedReferences, std::nullopt);
-        EXPECT_EQ(got.options.disallowedRequisites, std::nullopt);
+        EXPECT_EQ(got.options.checksAllOutputs.allowedReferences, std::nullopt);
+        EXPECT_EQ(got.options.checksAllOutputs.allowedRequisites, std::nullopt);
+        EXPECT_EQ(got.options.checksAllOutputs.disallowedReferences, std::nullopt);
+        EXPECT_EQ(got.options.checksAllOutputs.disallowedRequisites, std::nullopt);
         EXPECT_EQ(got.getRequiredSystemFeatures(), StringSet());
         EXPECT_EQ(got.canBuildLocally(*store), false);
         EXPECT_EQ(got.willBuildLocally(*store), false);
@@ -111,10 +111,10 @@ TEST_F(DerivationAdvancedAttrsTest, Derivation_advancedAttributes)
         EXPECT_EQ(got.options.impureHostDeps, Strings{"/usr/bin/ditto"});
         EXPECT_EQ(got.options.impureEnvVars, Strings{"UNICORN"});
         EXPECT_EQ(got.options.allowLocalNetworking, true);
-        EXPECT_EQ(got.options.allowedReferences, Strings{"/nix/store/3c08bzb71z4wiag719ipjxr277653ynp-foo"});
-        EXPECT_EQ(got.options.allowedRequisites, Strings{"/nix/store/3c08bzb71z4wiag719ipjxr277653ynp-foo"});
-        EXPECT_EQ(got.options.disallowedReferences, Strings{"/nix/store/7rhsm8i393hm1wcsmph782awg1hi2f7x-bar"});
-        EXPECT_EQ(got.options.disallowedRequisites, Strings{"/nix/store/7rhsm8i393hm1wcsmph782awg1hi2f7x-bar"});
+        EXPECT_EQ(got.options.checksAllOutputs.allowedReferences, Strings{"/nix/store/3c08bzb71z4wiag719ipjxr277653ynp-foo"});
+        EXPECT_EQ(got.options.checksAllOutputs.allowedRequisites, Strings{"/nix/store/3c08bzb71z4wiag719ipjxr277653ynp-foo"});
+        EXPECT_EQ(got.options.checksAllOutputs.disallowedReferences, Strings{"/nix/store/7rhsm8i393hm1wcsmph782awg1hi2f7x-bar"});
+        EXPECT_EQ(got.options.checksAllOutputs.disallowedRequisites, Strings{"/nix/store/7rhsm8i393hm1wcsmph782awg1hi2f7x-bar"});
         EXPECT_EQ(got.getRequiredSystemFeatures(), systemFeatures);
         EXPECT_EQ(got.canBuildLocally(*store), false);
         EXPECT_EQ(got.willBuildLocally(*store), false);
@@ -238,10 +238,10 @@ TEST_F(DerivationAdvancedAttrsTest, Derivation_advancedAttributes_option_syncCon
         SYNC_CONFLICT(impureHostDeps, Strings{"/usr/bin/ditto"});
         SYNC_CONFLICT(impureEnvVars, Strings{"HELLO"});
         SYNC_CONFLICT(allowLocalNetworking, true);
-        SYNC_CONFLICT(allowedReferences, Strings{"nothing"});
-        SYNC_CONFLICT(allowedRequisites, Strings{"hey"});
-        SYNC_CONFLICT(disallowedReferences, Strings{"BAR"});
-        SYNC_CONFLICT(disallowedRequisites, Strings{"FOO"});
+        SYNC_CONFLICT(checksAllOutputs.allowedReferences, Strings{"nothing"});
+        SYNC_CONFLICT(checksAllOutputs.allowedRequisites, Strings{"hey"});
+        SYNC_CONFLICT(checksAllOutputs.disallowedReferences, Strings{"BAR"});
+        SYNC_CONFLICT(checksAllOutputs.disallowedRequisites, Strings{"FOO"});
     });
 };
 
