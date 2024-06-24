@@ -504,7 +504,7 @@ static std::map<std::string, DerivationOptions::OutputChecks> parseChecksPerOutp
                 checks.disallowedReferences = get_("disallowedReferences");
                 checks.disallowedRequisites = get_("disallowedRequisites");
 
-                res.insert_or_assign(output, std::move(checks));
+                res.insert_or_assign(outputName, std::move(checks));
             }
         }
     }
