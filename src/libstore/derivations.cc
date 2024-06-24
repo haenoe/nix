@@ -1585,15 +1585,8 @@ DerivationOptions adl_serializer<DerivationOptions>::from_json(const json & json
     res.impureEnvVars = getStringList(valueAt(json, "impureEnvVars"));
     res.allowLocalNetworking = getBoolean(valueAt(json, "allowLocalNetworking"));
 
-    // FIXME separate output checks serializer
-    res.checksAllOutputs.ignoreSelfRefs = getBoolean(valueAt(json, "ignoreSelfRefs"));
-    res.checksAllOutputs.allowedReferences = nullableValueAt(json, "allowedReferences");
-    res.checksAllOutputs.allowedRequisites = nullableValueAt(json, "allowedRequisites");
-    res.checksAllOutputs.disallowedReferences = nullableValueAt(json, "disallowedReferences");
-    res.checksAllOutputs.disallowedRequisites = nullableValueAt(json, "disallowedRequisites");
-
-    // FIXME don't forget per-output checks
-    res.checksPerOutput = {};
+    res.checksAllOutputs = json;
+    res.checksPerOutput = valueAt(json, "outputChecks");
 
     res.requiredSystemFeatures = getStringList(valueAt(json, "requiredSystemFeatures"));
     res.preferLocalBuild = getBoolean(valueAt(json, "preferLocalBuild"));
@@ -1625,7 +1618,7 @@ void adl_serializer<DerivationOptions>::to_json(json & json, DerivationOptions o
 DerivationOptions::OutputChecks adl_serializer<DerivationOptions::OutputChecks>::from_json(const json & json) {
     DerivationOptions::OutputChecks res;
 
-    res.ignoreSelfRefs = getBoolean(valueAt(json, "allowedReferences"));
+    res.ignoreSelfRefs = getBoolean(valueAt(json, "ignoreSelfRefs"));
     res.allowedReferences = nullableValueAt(json, "allowedReferences");
     res.allowedRequisites = nullableValueAt(json, "allowedRequisites");
     res.disallowedReferences = nullableValueAt(json, "disallowedReferences");

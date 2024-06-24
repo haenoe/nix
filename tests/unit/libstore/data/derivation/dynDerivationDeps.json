@@ -41,9 +41,11 @@
     "allowedRequisites": null,
     "disallowedReferences": null,
     "disallowedRequisites": null,
+    "ignoreSelfRefs": true,
     "impureEnvVars": [],
     "impureHostDeps": [],
     "noChroot": false,
+    "outputChecks": {},
     "preferLocalBuild": false,
     "requiredSystemFeatures": []
   },
