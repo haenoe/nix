@@ -2889,9 +2889,9 @@ void LocalDerivationGoal::checkOutputs(const std::map<std::string, ValidPathInfo
             checkRefs(checks.disallowedRequisites, false, true);
         };
 
-        if (auto outputChecks = get(drv->options.checksPerOutput, outputName)) {
+        if (auto outputChecks = get(drv->options.checksPerOutput, outputName))
             applyChecks(*outputChecks);
-        }
+
         applyChecks(drv->options.checksAllOutputs);
     }
 }
