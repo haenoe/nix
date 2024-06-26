@@ -10,6 +10,8 @@
 #include "derived-path-map.hh"
 #include "sync.hh"
 #include "comparator.hh"
+#include "split.hh"
+#include "common-protocol-impl.hh"
 #include "variant-wrapper.hh"
 #include <nlohmann/json.hpp>
 #include "derivation-options.hh"
