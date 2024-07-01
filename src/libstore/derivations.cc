@@ -1,4 +1,5 @@
 #include "derivations.hh"
+#include "derivation-options.hh"
 #include "downstream-placeholder.hh"
 #include "error.hh"
 #include "json-utils.hh"

@@ -54,44 +54,53 @@ DerivationOptions DerivationOptions::fromEnv(const StringPairs & env, bool shoul
     auto structuredAttrs = parsed.getStructuredAttrs();
 
     if (shouldWarn && structuredAttrs) {
-        if (get(*structuredAttrs, "allowedReferences")){
-            warn("'structuredAttrs' disables the effect of the top-level attribute 'allowedReferences'; use 'outputChecks' instead");
+        if (get(*structuredAttrs, "allowedReferences")) {
+            warn(
+                "'structuredAttrs' disables the effect of the top-level attribute 'allowedReferences'; use 'outputChecks' instead");
         }
-        if (get(*structuredAttrs, "allowedRequisites")){
-            warn("'structuredAttrs' disables the effect of the top-level attribute 'allowedRequisites'; use 'outputChecks' instead");
+        if (get(*structuredAttrs, "allowedRequisites")) {
+            warn(
+                "'structuredAttrs' disables the effect of the top-level attribute 'allowedRequisites'; use 'outputChecks' instead");
         }
-        if (get(*structuredAttrs, "disallowedRequisites")){
-            warn("'structuredAttrs' disables the effect of the top-level attribute 'disallowedRequisites'; use 'outputChecks' instead");
+        if (get(*structuredAttrs, "disallowedRequisites")) {
+            warn(
+                "'structuredAttrs' disables the effect of the top-level attribute 'disallowedRequisites'; use 'outputChecks' instead");
         }
-        if (get(*structuredAttrs, "disallowedReferences")){
-            warn("'structuredAttrs' disables the effect of the top-level attribute 'disallowedReferences'; use 'outputChecks' instead");
+        if (get(*structuredAttrs, "disallowedReferences")) {
+            warn(
+                "'structuredAttrs' disables the effect of the top-level attribute 'disallowedReferences'; use 'outputChecks' instead");
         }
-        if (get(*structuredAttrs, "maxSize")){
-            warn("'structuredAttrs' disables the effect of the top-level attribute 'maxSize'; use 'outputChecks' instead");
+        if (get(*structuredAttrs, "maxSize")) {
+            warn(
+                "'structuredAttrs' disables the effect of the top-level attribute 'maxSize'; use 'outputChecks' instead");
         }
-        if (get(*structuredAttrs, "maxClosureSize")){
-            warn("'structuredAttrs' disables the effect of the top-level attribute 'maxClosureSize'; use 'outputChecks' instead");
+        if (get(*structuredAttrs, "maxClosureSize")) {
+            warn(
+                "'structuredAttrs' disables the effect of the top-level attribute 'maxClosureSize'; use 'outputChecks' instead");
         }
     }
 
     return {
         .checksPerOutput = parseChecksPerOutput(parsed),
         .checksAllOutputs = parsed.getStructuredAttrs()
-            ? (DerivationOptions::OutputChecks {}) // ignore
-            : (DerivationOptions::OutputChecks { // legacy non-structured-attributes case
-                .ignoreSelfRefs = true,
-                .allowedReferences = parsed.getStringsAttr("allowedReferences"),
-                .disallowedReferences = parsed.getStringsAttr("disallowedReferences"),
-                .allowedRequisites = parsed.getStringsAttr("allowedRequisites"),
-                .disallowedRequisites = parsed.getStringsAttr("disallowedRequisites"),
-             }),
-        .additionalSandboxProfile = parsed.getStringAttr("__sandboxProfile").value_or(defaults.additionalSandboxProfile),
+                                ? (DerivationOptions::OutputChecks{}) // ignore
+                                : (DerivationOptions::OutputChecks{
+                                    // legacy non-structured-attributes case
+                                    .ignoreSelfRefs = true,
+                                    .allowedReferences = parsed.getStringsAttr("allowedReferences"),
+                                    .disallowedReferences = parsed.getStringsAttr("disallowedReferences"),
+                                    .allowedRequisites = parsed.getStringsAttr("allowedRequisites"),
+                                    .disallowedRequisites = parsed.getStringsAttr("disallowedRequisites"),
+                                }),
+        .additionalSandboxProfile =
+            parsed.getStringAttr("__sandboxProfile").value_or(defaults.additionalSandboxProfile),
         .noChroot = parsed.getBoolAttr("__noChroot", defaults.noChroot),
         .impureHostDeps = parsed.getStringsAttr("__impureHostDeps").value_or(defaults.impureHostDeps),
         .impureEnvVars = parsed.getStringsAttr("impureEnvVars").value_or(defaults.impureEnvVars),
         .allowLocalNetworking = parsed.getBoolAttr("__darwinAllowLocalNetworking", defaults.allowLocalNetworking),
-        .requiredSystemFeatures = parsed.getStringsAttr("requiredSystemFeatures").value_or(defaults.requiredSystemFeatures),
-        .preferLocalBuild =  parsed.getBoolAttr("preferLocalBuild", defaults.preferLocalBuild),
+        .requiredSystemFeatures =
+            parsed.getStringsAttr("requiredSystemFeatures").value_or(defaults.requiredSystemFeatures),
+        .preferLocalBuild = parsed.getBoolAttr("preferLocalBuild", defaults.preferLocalBuild),
         .allowSubstitutes = parsed.getBoolAttr("allowSubstitutes", defaults.allowSubstitutes),
     };
 }

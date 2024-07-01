@@ -44,8 +44,8 @@ struct DerivationOptions
          */
         std::optional<Strings> disallowedRequisites = std::nullopt;
 
-        bool operator ==(const OutputChecks &) const = default;
-        auto operator <=>(const OutputChecks &) const = default;
+        bool operator==(const OutputChecks &) const = default;
+        auto operator<=>(const OutputChecks &) const = default;
     };
 
     std::map<std::string, OutputChecks> checksPerOutput;
@@ -101,20 +101,14 @@ struct DerivationOptions
      */
     bool allowSubstitutes = true;
 
-    bool operator ==(const DerivationOptions &) const = default;
-    auto operator <=>(const DerivationOptions &) const = default;
+    bool operator==(const DerivationOptions &) const = default;
+    auto operator<=>(const DerivationOptions &) const = default;
 
     /**
      * Parse this information from its legacy encoding as part of the
      * environment. This should not be used with nice greenfield formats
      * (e.g. JSON) but is necessary for supporing old formats (e.g.
      * ATerm).
-     *
-     * @todo Instead of taking the entire `BasicDerivation`, just take
-     * the envionrment. Right now this won't work because
-     * `ParsedDerivation` has to be created from the whole derivation,
-     * but this should become possible again once we shrink down
-     * `ParsedDerivation` so it just as the `get*Attr` methods.
      */
     static DerivationOptions fromEnv(const StringPairs & env, bool shouldWarn = true);
 };
