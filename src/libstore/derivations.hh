@@ -9,9 +9,6 @@
 #include "repair-flag.hh"
 #include "derived-path-map.hh"
 #include "sync.hh"
-#include "comparator.hh"
-#include "split.hh"
-#include "common-protocol-impl.hh"
 #include "variant-wrapper.hh"
 #include <nlohmann/json.hpp>
 #include "derivation-options.hh"
@@ -19,7 +16,6 @@
 #include <map>
 #include <optional>
 #include <variant>
-
 
 namespace nix {
 
@@ -39,7 +35,8 @@ struct DerivationOutput
     {
         StorePath path;
 
-        GENERATE_CMP(InputAddressed, me->path);
+        bool operator == (const InputAddressed &) const = default;
+        auto operator <=> (const InputAddressed &) const = default;
     };
 
     /**
@@ -63,7 +60,8 @@ struct DerivationOutput
          */
         StorePath path(const StoreDirConfig & store, std::string_view drvName, OutputNameView outputName) const;
 
-        GENERATE_CMP(CAFixed, me->ca);
+        bool operator == (const CAFixed &) const = default;
+        auto operator <=> (const CAFixed &) const = default;
     };
 
     /**
@@ -83,7 +81,8 @@ struct DerivationOutput
          */
         HashAlgorithm hashAlgo;
 
-        GENERATE_CMP(CAFloating, me->method, me->hashAlgo);
+        bool operator == (const CAFloating &) const = default;
+        auto operator <=> (const CAFloating &) const = default;
     };
 
     /**
@@ -91,7 +90,8 @@ struct DerivationOutput
      * isn't known yet.
      */
     struct Deferred {
-        GENERATE_CMP(Deferred);
+        bool operator == (const Deferred &) const = default;
+        auto operator <=> (const Deferred &) const = default;
     };
 
     /**
@@ -110,7 +110,8 @@ struct DerivationOutput
          */
         HashAlgorithm hashAlgo;
 
-        GENERATE_CMP(Impure, me->method, me->hashAlgo);
+        bool operator == (const Impure &) const = default;
+        auto operator <=> (const Impure &) const = default;
     };
 
     typedef std::variant<
@@ -123,7 +124,8 @@ struct DerivationOutput
 
     Raw raw;
 
-    GENERATE_CMP(DerivationOutput, me->raw);
+    bool operator == (const DerivationOutput &) const = default;
+    auto operator <=> (const DerivationOutput &) const = default;
 
     MAKE_WRAPPER_CONSTRUCTOR(DerivationOutput);
 
@@ -184,7 +186,8 @@ struct DerivationType {
         */
         bool deferred;
 
-        GENERATE_CMP(InputAddressed, me->deferred);
+        bool operator == (const InputAddressed &) const = default;
+        auto operator <=> (const InputAddressed &) const = default;
     };
 
     /**
@@ -208,7 +211,8 @@ struct DerivationType {
          */
         bool fixed;
 
-        GENERATE_CMP(ContentAddressed, me->sandboxed, me->fixed);
+        bool operator == (const ContentAddressed &) const = default;
+        auto operator <=> (const ContentAddressed &) const = default;
     };
 
     /**
@@ -218,7 +222,8 @@ struct DerivationType {
      * type, but has some restrictions on its usage.
      */
     struct Impure {
-        GENERATE_CMP(Impure);
+        bool operator == (const Impure &) const = default;
+        auto operator <=> (const Impure &) const = default;
     };
 
     typedef std::variant<
@@ -229,7 +234,8 @@ struct DerivationType {
 
     Raw raw;
 
-    GENERATE_CMP(DerivationType, me->raw);
+    bool operator == (const DerivationType &) const = default;
+    auto operator <=> (const DerivationType &) const = default;
 
     MAKE_WRAPPER_CONSTRUCTOR(DerivationType);
 
@@ -321,14 +327,9 @@ struct BasicDerivation
 
     static std::string_view nameFromPath(const StorePath & storePath);
 
-    GENERATE_CMP(BasicDerivation,
-            me->outputs,
-            me->inputSrcs,
-            me->platform,
-            me->builder,
-            me->args,
-            me->env,
-            me->name);
+    bool operator == (const BasicDerivation &) const = default;
+    // TODO libc++ 16 (used by darwin) missing `std::map::operator <=>`, can't do yet.
+    //auto operator <=> (const BasicDerivation &) const = default;
 };
 
 class Store;
@@ -396,9 +397,9 @@ struct Derivation : BasicDerivation
         const nlohmann::json & json,
         const ExperimentalFeatureSettings & xpSettings = experimentalFeatureSettings);
 
-    GENERATE_CMP(Derivation,
-            static_cast<const BasicDerivation &>(*me),
-            me->inputDrvs);
+    bool operator == (const Derivation &) const = default;
+    // TODO libc++ 16 (used by darwin) missing `std::map::operator <=>`, can't do yet.
+    //auto operator <=> (const Derivation &) const = default;
 };
 
 

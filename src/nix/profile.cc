@@ -27,7 +27,9 @@ struct ProfileElementSource
     std::string attrPath;
     ExtendedOutputsSpec outputs;
 
-    bool operator < (const ProfileElementSource & other) const
+    // TODO libc++ 16 (used by darwin) missing `std::set::operator <=>`, can't do yet.
+    //auto operator <=> (const ProfileElementSource & other) const
+    auto operator < (const ProfileElementSource & other) const
     {
         return
             std::tuple(originalRef.to_string(), attrPath, outputs) <
@@ -154,8 +156,8 @@ struct ProfileManifest
                 }
                 if (e.value(sUrl, "") != "") {
                     element.source = ProfileElementSource {
-                        parseFlakeRef(e[sOriginalUrl]),
-                        parseFlakeRef(e[sUrl]),
+                        parseFlakeRef(fetchSettings, e[sOriginalUrl]),
+                        parseFlakeRef(fetchSettings, e[sUrl]),
                         e["attrPath"],
                         e["outputs"].get<ExtendedOutputsSpec>()
                     };
@@ -258,7 +260,7 @@ struct ProfileManifest
             *store,
             "profile",
             FixedOutputInfo {
-                .method = FileIngestionMethod::Recursive,
+                .method = FileIngestionMethod::NixArchive,
                 .hash = narHash,
                 .references = {
                     .others = std::move(references),

@@ -30,9 +30,9 @@ public:
         return *s == s2;
     }
 
-    operator const std::string & () const
+    const char * c_str() const
     {
-        return *s;
+        return s->c_str();
     }
 
     operator const std::string_view () const
@@ -62,9 +62,8 @@ public:
 
     explicit operator bool() const { return id > 0; }
 
-    bool operator<(const Symbol other) const { return id < other.id; }
+    auto operator<=>(const Symbol other) const { return id <=> other.id; }
     bool operator==(const Symbol other) const { return id == other.id; }
-    bool operator!=(const Symbol other) const { return id != other.id; }
 };
 
 /**

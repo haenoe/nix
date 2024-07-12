@@ -19,7 +19,6 @@
 #include "users.hh"
 
 #include <nlohmann/json.hpp>
-#include <queue>
 #include <iomanip>
 
 using namespace nix;
@@ -48,19 +47,19 @@ public:
 
     FlakeRef getFlakeRef()
     {
-        return parseFlakeRef(flakeUrl, absPath(".")); //FIXME
+        return parseFlakeRef(fetchSettings, flakeUrl, absPath(".")); //FIXME
     }
 
     LockedFlake lockFlake()
     {
-        return flake::lockFlake(*getEvalState(), getFlakeRef(), lockFlags);
+        return flake::lockFlake(flakeSettings, *getEvalState(), getFlakeRef(), lockFlags);
     }
 
     std::vector<FlakeRef> getFlakeRefsForCompletion() override
     {
         return {
             // Like getFlakeRef but with expandTilde calld first
-            parseFlakeRef(expandTilde(flakeUrl), absPath("."))
+            parseFlakeRef(fetchSettings, expandTilde(flakeUrl), absPath("."))
         };
     }
 };
@@ -165,7 +164,7 @@ struct CmdFlakeLock : FlakeCommand
 };
 
 static void enumerateOutputs(EvalState & state, Value & vFlake,
-    std::function<void(const std::string & name, Value & vProvide, const PosIdx pos)> callback)
+    std::function<void(std::string_view name, Value & vProvide, const PosIdx pos)> callback)
 {
     auto pos = vFlake.determinePos(noPos);
     state.forceAttrs(vFlake, pos, "while evaluating a flake to get its outputs");
@@ -233,6 +232,8 @@ struct CmdFlakeMetadata : FlakeCommand, MixJSON
                 j["lastModified"] = *lastModified;
             j["path"] = storePath;
             j["locks"] = lockedFlake.lockFile.toJSON().first;
+            if (auto fingerprint = lockedFlake.getFingerprint(store))
+                j["fingerprint"] = fingerprint->to_string(HashFormat::Base16, false);
             logger->cout("%s", j.dump());
         } else {
             logger->cout(
@@ -265,6 +266,10 @@ struct CmdFlakeMetadata : FlakeCommand, MixJSON
                 logger->cout(
                     ANSI_BOLD "Last modified:" ANSI_NORMAL " %s",
                     std::put_time(std::localtime(&*lastModified), "%F %T"));
+            if (auto fingerprint = lockedFlake.getFingerprint(store))
+                logger->cout(
+                    ANSI_BOLD "Fingerprint:" ANSI_NORMAL "   %s",
+                    fingerprint->to_string(HashFormat::Base16, false));
 
             if (!lockedFlake.lockFile.root->inputs.empty())
                 logger->cout(ANSI_BOLD "Inputs:" ANSI_NORMAL);
@@ -387,15 +392,15 @@ struct CmdFlakeCheck : FlakeCommand
                 || (hasPrefix(name, "_") && name.substr(1) == expected);
         };
 
-        auto checkSystemName = [&](const std::string & system, const PosIdx pos) {
+        auto checkSystemName = [&](std::string_view system, const PosIdx pos) {
             // FIXME: what's the format of "system"?
             if (system.find('-') == std::string::npos)
                 reportError(Error("'%s' is not a valid system type, at %s", system, resolve(pos)));
         };
 
-        auto checkSystemType = [&](const std::string & system, const PosIdx pos) {
+        auto checkSystemType = [&](std::string_view system, const PosIdx pos) {
             if (!checkAllSystems && system != localSystem) {
-                omittedSystems.insert(system);
+                omittedSystems.insert(std::string(system));
                 return false;
             } else {
                 return true;
@@ -444,7 +449,7 @@ struct CmdFlakeCheck : FlakeCommand
             }
         };
 
-        auto checkOverlay = [&](const std::string & attrPath, Value & v, const PosIdx pos) {
+        auto checkOverlay = [&](std::string_view attrPath, Value & v, const PosIdx pos) {
             try {
                 Activity act(*logger, lvlInfo, actUnknown,
                     fmt("checking overlay '%s'", attrPath));
@@ -463,7 +468,7 @@ struct CmdFlakeCheck : FlakeCommand
             }
         };
 
-        auto checkModule = [&](const std::string & attrPath, Value & v, const PosIdx pos) {
+        auto checkModule = [&](std::string_view attrPath, Value & v, const PosIdx pos) {
             try {
                 Activity act(*logger, lvlInfo, actUnknown,
                     fmt("checking NixOS module '%s'", attrPath));
@@ -474,9 +479,9 @@ struct CmdFlakeCheck : FlakeCommand
             }
         };
 
-        std::function<void(const std::string & attrPath, Value & v, const PosIdx pos)> checkHydraJobs;
+        std::function<void(std::string_view attrPath, Value & v, const PosIdx pos)> checkHydraJobs;
 
-        checkHydraJobs = [&](const std::string & attrPath, Value & v, const PosIdx pos) {
+        checkHydraJobs = [&](std::string_view attrPath, Value & v, const PosIdx pos) {
             try {
                 Activity act(*logger, lvlInfo, actUnknown,
                     fmt("checking Hydra job '%s'", attrPath));
@@ -517,7 +522,7 @@ struct CmdFlakeCheck : FlakeCommand
             }
         };
 
-        auto checkTemplate = [&](const std::string & attrPath, Value & v, const PosIdx pos) {
+        auto checkTemplate = [&](std::string_view attrPath, Value & v, const PosIdx pos) {
             try {
                 Activity act(*logger, lvlInfo, actUnknown,
                     fmt("checking template '%s'", attrPath));
@@ -573,7 +578,7 @@ struct CmdFlakeCheck : FlakeCommand
 
             enumerateOutputs(*state,
                 *vFlake,
-                [&](const std::string & name, Value & vOutput, const PosIdx pos) {
+                [&](std::string_view name, Value & vOutput, const PosIdx pos) {
                     Activity act(*logger, lvlInfo, actUnknown,
                         fmt("checking flake output '%s'", name));
 
@@ -597,7 +602,7 @@ struct CmdFlakeCheck : FlakeCommand
                         if (name == "checks") {
                             state->forceAttrs(vOutput, pos, "");
                             for (auto & attr : *vOutput.attrs()) {
-                                const auto & attr_name = state->symbols[attr.name];
+                                std::string_view attr_name = state->symbols[attr.name];
                                 checkSystemName(attr_name, attr.pos);
                                 if (checkSystemType(attr_name, attr.pos)) {
                                     state->forceAttrs(*attr.value, attr.pos, "");
@@ -842,7 +847,8 @@ struct CmdFlakeInitCommon : virtual Args, EvalCommand
 
         auto evalState = getEvalState();
 
-        auto [templateFlakeRef, templateName] = parseFlakeRefWithFragment(templateUrl, absPath("."));
+        auto [templateFlakeRef, templateName] = parseFlakeRefWithFragment(
+            fetchSettings, templateUrl, absPath("."));
 
         auto installable = InstallableFlake(nullptr,
             evalState, std::move(templateFlakeRef), templateName, ExtendedOutputsSpec::Default(),
