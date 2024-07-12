@@ -2,10 +2,23 @@
 ///@file
 
 #include <cstdint>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include "types.hh"
+#include <variant>
 
 namespace nix {
+
+class AdditionalAttributes
+{
+    typedef StringPairs Env;
+
+    std::variant<Env, nlohmann::json> attrs;
+
+    std::optional<std::string> getStringAttr(const std::string & name) const;
+    bool getBoolAttr(const std::string & name, bool def = false) const;
+    std::optional<Strings> getStringsAttr(const std::string & name) const;
+};
 
 struct DerivationOptions
 {
@@ -51,6 +64,8 @@ struct DerivationOptions
     std::map<std::string, OutputChecks> checksPerOutput;
 
     OutputChecks checksAllOutputs;
+
+    AdditionalAttributes attrs;
 
     /**
      * env: __sandboxProfile

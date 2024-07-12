@@ -1,7 +1,70 @@
 #include "derivation-options.hh"
+#include "json-utils.hh"
 #include "parsed-derivations.hh"
+#include "types.hh"
+#include "util.hh"
+#include <optional>
+#include <string>
+#include <variant>
 
 namespace nix {
+
+std::optional<std::string> AdditionalAttributes::getStringAttr(const std::string & name) const
+{
+    return std::visit(
+        overloaded{
+            [&](const nlohmann::json & json) -> std::optional<std::string> {
+                if (!json.contains(name))
+                    return std::nullopt;
+
+                return std::optional{getString(valueAt(json, name))};
+            },
+            [&](const StringPairs & env) -> std::optional<std::string> {
+                if (!env.contains(name))
+                    return std::nullopt;
+
+                return std::optional{env.at("name")};
+            }},
+        attrs);
+};
+
+bool AdditionalAttributes::getBoolAttr(const std::string & name, bool def) const
+{
+    return std::visit(
+        overloaded{
+            [&](const nlohmann::json & json) {
+                if (!json.contains(name))
+                    return def;
+
+                return getBoolean(valueAt(json, name));
+            },
+            [&](const StringPairs & env) {
+                if (!env.contains(name))
+                    return def;
+
+                return env.at(name) == "1";
+            }},
+        attrs);
+};
+
+std::optional<Strings> AdditionalAttributes::getStringsAttr(const std::string & name) const
+{
+    return std::visit(
+        overloaded{
+            [&](const nlohmann::json & json) -> std::optional<Strings> {
+                if (!json.contains(name))
+                    return std::nullopt;
+
+                return std::optional{getStringList(valueAt(json, name))};
+            },
+            [&](const StringPairs & env) -> std::optional<Strings> {
+                if (!env.contains(name))
+                    return std::nullopt;
+
+                return std::optional{tokenizeString<Strings>(env.at(name))};
+            }},
+        attrs);
+};
 
 static std::map<std::string, DerivationOptions::OutputChecks> parseChecksPerOutput(const ParsedDerivation & parsed)
 {
@@ -104,5 +167,4 @@ DerivationOptions DerivationOptions::fromEnv(const StringPairs & env, bool shoul
         .allowSubstitutes = parsed.getBoolAttr("allowSubstitutes", defaults.allowSubstitutes),
     };
 }
-
 }
